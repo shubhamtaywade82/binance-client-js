@@ -283,3 +283,31 @@ Rolling window (e.g. "1h", "4h") ticker updates. Event: `ws:rollingWindowTicker`
 #### `subscribeUserStream()`
 Subscribe to the user data stream for account updates. Emits `ws:df-order-update`, `ws:balance-update`, etc.
 Automatically handles `listenKey` creation and renewal.
+
+## Error Classes
+
+The library exports several custom error classes for better error handling:
+
+- **`BinanceError`**: Base class for all library errors.
+- **`BinanceAPIError`**: Thrown when the Binance API returns a non-200 response. Includes `status`, `data` (API error msg), `method`, and `url`.
+- **`BinanceNetworkError`**: Thrown for network-level issues (timeout, DNS, etc.). Includes the `originalError`.
+
+```javascript
+const { BinanceAPIError } = require('binance-client-js');
+try {
+    await client.createOrder({...});
+} catch (err) {
+    if (err instanceof BinanceAPIError) {
+        console.log(`Binance Error ${err.data.code}: ${err.data.msg}`);
+    }
+}
+```
+
+## Static Utilities
+
+Accessible via the `BinanceFuturesClient` class:
+
+- **`BinanceFuturesClient.nowSeconds()`**: Returns current timestamp in seconds.
+- **`BinanceFuturesClient.buildPair(base, target)`**: Builds a standard pair string (e.g., `B-BTC_USDT`).
+- **`BinanceFuturesClient.parsePair(pair)`**: Parses a pair string into components.
+- **`BinanceFuturesClient.calculateLiquidationPrice(entry, leverage, side)`**: Calculates estimated liquidation price for Isolated Margin.
