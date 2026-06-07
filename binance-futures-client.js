@@ -77,9 +77,12 @@ class BinanceFuturesClient extends EventEmitter {
     async _request(method, path, data = {}, isPublic = false) {
         const url = `${this.apiBase}${path}`;
         const headers = {
-            'X-MBX-APIKEY': this.apiKey,
             'Content-Type': 'application/x-www-form-urlencoded'
         };
+
+        if (this.apiKey) {
+            headers['X-MBX-APIKEY'] = this.apiKey;
+        }
 
         let queryString = '';
         if (!isPublic) {
@@ -155,6 +158,40 @@ class BinanceFuturesClient extends EventEmitter {
         return this._request('GET', '/fapi/v1/fundingRate', { symbol, limit }, true);
     }
 
+    async getOpenInterestHistory(symbol, period, options = {}) {
+        return this._request('GET', '/futures/data/openInterestHist', { symbol, period, ...options }, true);
+    }
+
+    async getTopLongShortPositionRatio(symbol, period, options = {}) {
+        return this._request('GET', '/futures/data/topLongShortPositionRatio', { symbol, period, ...options }, true);
+    }
+
+    async getTopLongShortAccountRatio(symbol, period, options = {}) {
+        return this._request('GET', '/futures/data/topLongShortAccountRatio', { symbol, period, ...options }, true);
+    }
+
+    async getGlobalLongShortAccountRatio(symbol, period, options = {}) {
+        return this._request('GET', '/futures/data/globalLongShortAccountRatio', { symbol, period, ...options }, true);
+    }
+
+    async getTakerBuySellVolume(symbol, period, options = {}) {
+        return this._request('GET', '/futures/data/takerlongshortRatio', { symbol, period, ...options }, true);
+    }
+
+    async getBasis(symbol, period, options = {}) {
+        return this._request('GET', '/futures/data/basis', { symbol, period, ...options }, true);
+    }
+
+    async getAssetIndex(symbol) {
+        const params = symbol ? { symbol } : {};
+        return this._request('GET', '/fapi/v1/assetIndex', params, true);
+    }
+
+    async getAdlQuantile(symbol) {
+        const params = symbol ? { symbol } : {};
+        return this._request('GET', '/fapi/v1/adlQuantile', params, false);
+    }
+
     // --- Authenticated Account & Trading ---
 
     async getBalance() {
@@ -202,6 +239,34 @@ class BinanceFuturesClient extends EventEmitter {
         return this._request('GET', '/fapi/v1/allOrders', params, false);
     }
 
+    async getPositionMode() {
+        return this._request('GET', '/fapi/v1/positionSide/dual', {}, false);
+    }
+
+    async setPositionMode(dualSidePosition) {
+        return this._request('POST', '/fapi/v1/positionSide/dual', { dualSidePosition }, false);
+    }
+
+    async getMultiAssetsMargin() {
+        return this._request('GET', '/fapi/v1/multiAssetsMargin', {}, false);
+    }
+
+    async setMultiAssetsMargin(multiAssetsMargin) {
+        return this._request('POST', '/fapi/v1/multiAssetsMargin', { multiAssetsMargin }, false);
+    }
+
+    async getUserCommissionRate(symbol) {
+        return this._request('GET', '/fapi/v1/commissionRate', { symbol }, false);
+    }
+
+    async getFeeBurnStatus() {
+        return this._request('GET', '/fapi/v1/feeBurn', {}, false);
+    }
+
+    async setFeeBurnStatus(feeBurn) {
+        return this._request('POST', '/fapi/v1/feeBurn', { feeBurn }, false);
+    }
+
     // --- WebSocket Implementation ---
 
     /**
@@ -234,6 +299,27 @@ class BinanceFuturesClient extends EventEmitter {
         });
 
         return ws;
+    }
+
+    /**
+     * Subscribe to all market tickers.
+     */
+    subscribeAllMarketTickers() {
+        return this.subscribeMarketStream('!ticker@arr');
+    }
+
+    /**
+     * Subscribe to all book tickers.
+     */
+    subscribeAllBookTickers() {
+        return this.subscribeMarketStream('!bookTicker');
+    }
+
+    /**
+     * Subscribe to market-wide liquidation orders.
+     */
+    subscribeAllLiquidationOrders() {
+        return this.subscribeMarketStream('!forceOrder@arr');
     }
 
     /**
