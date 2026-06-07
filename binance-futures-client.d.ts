@@ -30,7 +30,17 @@ export class BinanceFuturesClient extends EventEmitter {
     getTakerBuySellVolume(symbol: string, period: string, options?: any): Promise<any>;
     getBasis(symbol: string, period: string, options?: any): Promise<any>;
     getAssetIndex(symbol?: string): Promise<any>;
+    getCompositeIndexInfo(symbol?: string): Promise<any>;
     getAdlQuantile(symbol?: string): Promise<any>;
+    getBlvtInfo(tokenName?: string): Promise<any>;
+    getIndexPriceConstituents(symbol: string): Promise<any>;
+    getSymbolConfig(symbol?: string): Promise<any>;
+    getQuantitativeRules(): Promise<any>;
+    getForceOrders(options?: any): Promise<any>;
+    requestOrderDownload(options?: any): Promise<any>;
+    getOrderDownloadStatus(downloadId: string): Promise<any>;
+    requestTradeDownload(options?: any): Promise<any>;
+    getTradeDownloadStatus(downloadId: string): Promise<any>;
 
     // Authenticated Account & Trading
     getBalance(): Promise<any>;
@@ -38,12 +48,19 @@ export class BinanceFuturesClient extends EventEmitter {
     getPositionRisk(symbol?: string): Promise<any>;
     setLeverage(symbol: string, leverage: number): Promise<any>;
     createOrder(params: any): Promise<any>;
+    modifyOrder(params: any): Promise<any>;
+    createBatchOrders(batchOrders: any[]): Promise<any>;
+    modifyBatchOrders(batchOrders: any[]): Promise<any>;
     getOrder(symbol: string, orderId?: number, origClientOrderId?: string): Promise<any>;
     cancelOrder(symbol: string, orderId?: number, origClientOrderId?: string): Promise<any>;
+    cancelBatchOrders(symbol: string, orderIdList?: number[], origClientOrderIdList?: string[]): Promise<any>;
     getOpenOrders(symbol?: string): Promise<any>;
     getAllOrders(symbol: string, options?: any): Promise<any>;
+    cancelAllOpenOrders(symbol: string): Promise<any>;
     getPositionMode(): Promise<any>;
     setPositionMode(dualSidePosition: boolean): Promise<any>;
+    setMarginType(symbol: string, marginType: 'ISOLATED' | 'CROSSED'): Promise<any>;
+    modifyPositionMargin(symbol: string, amount: string | number, type: 1 | 2): Promise<any>;
     getMultiAssetsMargin(): Promise<any>;
     setMultiAssetsMargin(multiAssetsMargin: boolean): Promise<any>;
     getUserCommissionRate(symbol: string): Promise<any>;
@@ -51,12 +68,19 @@ export class BinanceFuturesClient extends EventEmitter {
     setFeeBurnStatus(feeBurn: boolean): Promise<any>;
 
     // WebSocket
-    subscribeMarketStream(stream: string): WebSocket;
-    subscribeAllMarketTickers(): WebSocket;
-    subscribeAllBookTickers(): WebSocket;
-    subscribeAllLiquidationOrders(): WebSocket;
+    subscribeMarketStream(stream: string, pair?: string, type?: string): WebSocket;
+    wsSubscribeCandles(pair: string, interval?: string): WebSocket;
+    wsSubscribeOrderBook(pair: string, depth?: number): WebSocket;
+    wsSubscribeTrades(pair: string): WebSocket;
+    wsSubscribeAllMarketTickers(): WebSocket;
+    wsSubscribeAllBookTickers(): WebSocket;
+    wsSubscribeAllLiquidationOrders(): WebSocket;
+    wsSubscribeCompositeIndex(pair: string): WebSocket;
+    wsSubscribeAllMarkPrices(): WebSocket;
+    wsSubscribeAllAssetIndices(): WebSocket;
+    wsSubscribeAssetIndex(asset: string): WebSocket;
+    wsSubscribeRollingWindowTicker(pair: string, window?: string): WebSocket;
     subscribeUserStream(): Promise<WebSocket>;
-    unsubscribeUserStream(): Promise<void>;
 }
 
 export default BinanceFuturesClient;

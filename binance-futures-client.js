@@ -250,6 +250,84 @@ class BinanceFuturesClient extends EventEmitter {
         return this._request('GET', '/futures/data/takerlongshortRatio', { symbol, period, ...options }, true);
     }
 
+    async getGlobalLongShortAccountRatio(pair, period, options = {}) {
+        const symbol = this.normalizeSymbol(pair);
+        return this._request('GET', '/futures/data/globalLongShortAccountRatio', { symbol, period, ...options }, true);
+    }
+
+    async getTopLongShortAccountRatio(pair, period, options = {}) {
+        const symbol = this.normalizeSymbol(pair);
+        return this._request('GET', '/futures/data/topLongShortAccountRatio', { symbol, period, ...options }, true);
+    }
+
+    async getBasis(pair, period, options = {}) {
+        const symbol = this.normalizeSymbol(pair);
+        return this._request('GET', '/futures/data/basis', { symbol, period, ...options }, true);
+    }
+
+    async getAssetIndex(pair) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = symbol ? { symbol } : {};
+        return this._request('GET', '/fapi/v1/assetIndex', params, true);
+    }
+
+    async getCompositeIndexInfo(pair) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = symbol ? { symbol } : {};
+        return this._request('GET', '/fapi/v1/indexInfo', params, true);
+    }
+
+    async getAdlQuantile(pair) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = symbol ? { symbol } : {};
+        return this._request('GET', '/fapi/v1/adlQuantile', params, false);
+    }
+
+    async getBlvtInfo(tokenName) {
+        const params = tokenName ? { tokenName } : {};
+        return this._request('GET', '/fapi/v1/lvtKlines', params, true);
+    }
+
+    async getIndexPriceConstituents(pair) {
+        const symbol = this.normalizeSymbol(pair);
+        return this._request('GET', '/fapi/v1/constituents', { symbol }, true);
+    }
+
+    async getSymbolConfig(pair) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = symbol ? { symbol } : {};
+        return this._request('GET', '/fapi/v1/symbolConfig', params, true);
+    }
+
+    async getQuantitativeRules() {
+        return this._request('GET', '/fapi/v1/quantitativeRules', {}, true);
+    }
+
+    async getForceOrders(options = {}) {
+        if (options.pair) {
+            options.symbol = this.normalizeSymbol(options.pair);
+            delete options.pair;
+        }
+        return this._request('GET', '/fapi/v1/forceOrders', options, true);
+    }
+
+    // Async Data Download
+    async requestOrderDownload(options = {}) {
+        return this._request('GET', '/fapi/v1/order/asyn', options, false);
+    }
+
+    async getOrderDownloadStatus(downloadId) {
+        return this._request('GET', '/fapi/v1/order/asyn/id', { downloadId }, false);
+    }
+
+    async requestTradeDownload(options = {}) {
+        return this._request('GET', '/fapi/v1/trade/asyn', options, false);
+    }
+
+    async getTradeDownloadStatus(downloadId) {
+        return this._request('GET', '/fapi/v1/trade/asyn/id', { downloadId }, false);
+    }
+
     // --- Authenticated Account & Trading ---
 
     async getBalance() { return this._request('GET', '/fapi/v2/balance', {}, false); }
@@ -294,6 +372,88 @@ class BinanceFuturesClient extends EventEmitter {
         const symbol = this.normalizeSymbol(pair);
         const params = symbol ? { symbol } : {};
         return this._request('GET', '/fapi/v1/openOrders', params, false);
+    }
+
+    async getAllOrders(pair, options = {}) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = { symbol, ...options };
+        return this._request('GET', '/fapi/v1/allOrders', params, false);
+    }
+
+    async cancelAllOpenOrders(pair) {
+        const symbol = this.normalizeSymbol(pair);
+        return this._request('DELETE', '/fapi/v1/allOpenOrders', { symbol }, false);
+    }
+
+    async modifyOrder(params) {
+        if (params.pair) {
+            params.symbol = this.normalizeSymbol(params.pair);
+            delete params.pair;
+        }
+        return this._request('PUT', '/fapi/v1/order', params, false);
+    }
+
+    async createBatchOrders(batchOrders) {
+        const orders = batchOrders.map(o => {
+            const order = { ...o };
+            if (order.pair) {
+                order.symbol = this.normalizeSymbol(order.pair);
+                delete order.pair;
+            }
+            return order;
+        });
+        return this._request('POST', '/fapi/v1/batchOrders', { batchOrders: JSON.stringify(orders) }, false);
+    }
+
+    async modifyBatchOrders(batchOrders) {
+        const orders = batchOrders.map(o => {
+            const order = { ...o };
+            if (order.pair) {
+                order.symbol = this.normalizeSymbol(order.pair);
+                delete order.pair;
+            }
+            return order;
+        });
+        return this._request('PUT', '/fapi/v1/batchOrders', { batchOrders: JSON.stringify(orders) }, false);
+    }
+
+    async cancelBatchOrders(pair, orderIdList = [], origClientOrderIdList = []) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = { symbol };
+        if (orderIdList.length > 0) params.orderIdList = JSON.stringify(orderIdList);
+        if (origClientOrderIdList.length > 0) params.origClientOrderIdList = JSON.stringify(origClientOrderIdList);
+        return this._request('DELETE', '/fapi/v1/batchOrders', params, false);
+    }
+
+    async setMarginType(pair, marginType) {
+        const symbol = this.normalizeSymbol(pair);
+        return this._request('POST', '/fapi/v1/marginType', { symbol, marginType }, false);
+    }
+
+    async modifyPositionMargin(pair, amount, type) {
+        const symbol = this.normalizeSymbol(pair);
+        return this._request('POST', '/fapi/v1/positionMargin', { symbol, amount, type }, false);
+    }
+
+    async getMultiAssetsMargin() {
+        return this._request('GET', '/fapi/v1/multiAssetsMargin', {}, false);
+    }
+
+    async setMultiAssetsMargin(multiAssetsMargin) {
+        return this._request('POST', '/fapi/v1/multiAssetsMargin', { multiAssetsMargin }, false);
+    }
+
+    async getUserCommissionRate(pair) {
+        const symbol = this.normalizeSymbol(pair);
+        return this._request('GET', '/fapi/v1/commissionRate', { symbol }, false);
+    }
+
+    async getFeeBurnStatus() {
+        return this._request('GET', '/fapi/v1/feeBurn', {}, false);
+    }
+
+    async setFeeBurnStatus(feeBurn) {
+        return this._request('POST', '/fapi/v1/feeBurn', { feeBurn }, false);
     }
 
     async getPositionMode() { return this._request('GET', '/fapi/v1/positionSide/dual', {}, false); }
@@ -364,6 +524,22 @@ class BinanceFuturesClient extends EventEmitter {
             if (type === 'candlestick') normalized = this._normalizeCandle(data, pair);
             else if (type === 'depth') normalized = this._normalizeDepth(data);
             else if (type === 'trade') normalized = this._normalizeTrade(data);
+            else if (type === 'allLiquidationOrders') {
+                normalized = data.o ? {
+                    symbol: data.o.s,
+                    side: data.o.S,
+                    orderType: data.o.o,
+                    timeInForce: data.o.f,
+                    originalQuantity: data.o.q,
+                    price: data.o.p,
+                    averagePrice: data.o.ap,
+                    orderStatus: data.o.X,
+                    lastFilledQuantity: data.o.l,
+                    filledAccumulatedQuantity: data.o.z,
+                    time: data.o.T,
+                    raw: data
+                } : data;
+            }
 
             this.emit(`ws:${event}`, normalized);
             this.emit(stream, normalized);
@@ -385,6 +561,41 @@ class BinanceFuturesClient extends EventEmitter {
     wsSubscribeTrades(pair) {
         const symbol = this.normalizeSymbol(pair).toLowerCase();
         return this.subscribeMarketStream(`${symbol}@aggTrade`, pair, 'trade');
+    }
+
+    wsSubscribeAllMarketTickers() {
+        return this.subscribeMarketStream('!ticker@arr', null, 'allMarketTickers');
+    }
+
+    wsSubscribeAllBookTickers() {
+        return this.subscribeMarketStream('!bookTicker', null, 'allBookTickers');
+    }
+
+    wsSubscribeAllLiquidationOrders() {
+        return this.subscribeMarketStream('!forceOrder@arr', null, 'allLiquidationOrders');
+    }
+
+    wsSubscribeCompositeIndex(pair) {
+        const symbol = this.normalizeSymbol(pair).toLowerCase();
+        return this.subscribeMarketStream(`${symbol}@compositeIndex`, pair, 'compositeIndex');
+    }
+
+    wsSubscribeAllMarkPrices() {
+        return this.subscribeMarketStream('!markPrice@arr', null, 'allMarkPrices');
+    }
+
+    wsSubscribeAllAssetIndices() {
+        return this.subscribeMarketStream('!assetIndex@arr', null, 'allAssetIndices');
+    }
+
+    wsSubscribeAssetIndex(asset) {
+        const lower = asset.toLowerCase();
+        return this.subscribeMarketStream(`${lower}@assetIndex`, asset, 'assetIndex');
+    }
+
+    wsSubscribeRollingWindowTicker(pair, window = '1h') {
+        const symbol = this.normalizeSymbol(pair).toLowerCase();
+        return this.subscribeMarketStream(`${symbol}@ticker_${window}`, pair, 'rollingWindowTicker');
     }
 
     async subscribeUserStream() {

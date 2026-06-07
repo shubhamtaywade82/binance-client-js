@@ -63,8 +63,17 @@ Spread between futures and index prices.
 #### `getAssetIndex(symbol)`
 Real-time price and info for assets in Multi-Assets Mode.
 
+#### `getCompositeIndexInfo(symbol)`
+Composite Index Info.
+
 #### `getAdlQuantile(symbol)`
 Auto-Deleveraging risk levels.
+
+#### `getBlvtInfo(tokenName)`
+Binance Leveraged Tokens info.
+
+#### `getIndexPriceConstituents(symbol)`
+Index Price Constituents.
 
 ### Account & Trade Methods (Authenticated)
 
@@ -81,7 +90,16 @@ Get position risk.
 Change initial leverage.
 
 #### `createOrder(params)`
-Place a new order.
+Place a new order. `params` can include `pair` or `symbol`.
+
+#### `modifyOrder(params)`
+Modify an existing order.
+
+#### `createBatchOrders(batchOrders)`
+Place multiple orders in a single call.
+
+#### `modifyBatchOrders(batchOrders)`
+Modify multiple orders in a single call.
 
 #### `getOrder(symbol, orderId, origClientOrderId)`
 Check an order's status.
@@ -89,17 +107,29 @@ Check an order's status.
 #### `cancelOrder(symbol, orderId, origClientOrderId)`
 Cancel an active order.
 
+#### `cancelBatchOrders(symbol, orderIdList, origClientOrderIdList)`
+Cancel multiple orders in a single call.
+
 #### `getOpenOrders(symbol)`
 Get all open orders on a symbol.
 
 #### `getAllOrders(symbol, options)`
 Get all account orders; active, canceled, or filled.
 
+#### `cancelAllOpenOrders(symbol)`
+Cancel all open orders on a symbol.
+
 #### `getPositionMode()`
 Check if user is in Hedge or One-way position mode.
 
 #### `setPositionMode(dualSidePosition)`
 Set position mode. `true` for Hedge mode, `false` for One-way mode.
+
+#### `setMarginType(symbol, marginType)`
+Set margin type: `ISOLATED` or `CROSSED`.
+
+#### `modifyPositionMargin(symbol, amount, type)`
+Modify isolated position margin. `type`: 1 for Add, 2 for Remove.
 
 #### `getMultiAssetsMargin()`
 Check if user is in Multi-Asset margin mode.
@@ -118,22 +148,27 @@ Enable or disable BNB fee burn.
 
 ### WebSocket Methods
 
-#### `subscribeMarketStream(stream)`
-Subscribe to a public market stream. Emits events named after the stream.
-Example streams: `btcusdt@aggTrade`, `btcusdt@markPrice`, `btcusdt@kline_1m`.
+#### `wsSubscribeCandles(pair, interval)`
+Normalized candle stream. Event: `ws:candlestick`.
 
-#### `subscribeAllMarketTickers()`
-Convenience method to subscribe to all market 24hr ticker updates. Stream: `!ticker@arr`.
+#### `wsSubscribeOrderBook(pair, depth)`
+Normalized depth stream. Event: `ws:depth-snapshot`.
 
-#### `subscribeAllBookTickers()`
-Convenience method for best bid/ask updates for all symbols. Stream: `!bookTicker`.
+#### `wsSubscribeTrades(pair)`
+Normalized trade stream. Event: `ws:new-trade`.
 
-#### `subscribeAllLiquidationOrders()`
-Convenience method for market-wide liquidation orders. Stream: `!forceOrder@arr`.
+#### `wsSubscribeAllMarketTickers()`
+All Market Tickers updates. Event: `ws:allMarketTickers`.
+
+#### `wsSubscribeAllBookTickers()`
+All Book Tickers updates. Event: `ws:allBookTickers`.
+
+#### `wsSubscribeAllLiquidationOrders()`
+Market-wide Liquidation Orders. Event: `ws:allLiquidationOrders`.
+
+#### `wsSubscribeCompositeIndex(pair)`
+Composite Index Price updates. Event: `ws:compositeIndex`.
 
 #### `subscribeUserStream()`
-Subscribe to the user data stream for account updates. Emits `userData` and specific event types like `ORDER_TRADE_UPDATE`.
+Subscribe to the user data stream for account updates. Emits `ws:df-order-update`, `ws:balance-update`, etc.
 Automatically handles `listenKey` creation and renewal.
-
-#### `unsubscribeUserStream()`
-Close the user data stream and clean up resources.
