@@ -21,6 +21,8 @@ export class BinanceFuturesClient extends EventEmitter {
     getTickerPrice(symbol?: string): Promise<any>;
     getMarkPrice(symbol?: string): Promise<any>;
     getFundingRateHistory(symbol: string, limit?: number): Promise<any>;
+    getInstrumentDetails(symbol: string): Promise<any>;
+    normalizeSymbol(symbol: string): string;
     getOpenInterestHistory(symbol: string, period: string, options?: any): Promise<any>;
     getTopLongShortPositionRatio(symbol: string, period: string, options?: any): Promise<any>;
     getTopLongShortAccountRatio(symbol: string, period: string, options?: any): Promise<any>;

@@ -20,8 +20,8 @@ npm install axios ws dotenv
 ## Quick Start
 
 ```javascript
-const BinanceFuturesClient = require('./binance-futures-client');
-
+const { BinanceFuturesClient } = require('binance-client-js');
+```
 const client = new BinanceFuturesClient({
     apiKey: 'YOUR_API_KEY',
     apiSecret: 'YOUR_API_SECRET',

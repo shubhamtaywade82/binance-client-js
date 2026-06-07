@@ -4,10 +4,39 @@ const WebSocket = require('ws');
 const EventEmitter = require('events');
 
 /**
+ * --- CUSTOM ERRORS ---
+ */
+class BinanceError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = this.constructor.name;
+    }
+}
+
+class BinanceAPIError extends BinanceError {
+    constructor(message, status, data, method, url) {
+        super(message);
+        this.status = status;
+        this.data = data;
+        this.method = method;
+        this.url = url;
+        this.isRetryable = [429, 500, 502, 503, 504].includes(status);
+    }
+}
+
+class BinanceNetworkError extends BinanceError {
+    constructor(message, originalError) {
+        super(message);
+        this.originalError = originalError;
+        this.isRetryable = true;
+    }
+}
+
+/**
  * Binance USDⓈ-M Futures Client Library (REST + WebSocket)
  *
  * Provides a unified interface for Binance USDⓈ-M Futures APIs.
- * Includes automatic signature generation and robust WebSocket handling.
+ * Architecture and naming conventions aligned with CoinDCXFuturesClient.
  *
  * @version 1.0.0
  * @extends EventEmitter
@@ -44,40 +73,77 @@ class BinanceFuturesClient extends EventEmitter {
         this.ws = null;
         this.listenKey = null;
         this.listenKeyInterval = null;
+
+        this.wsEvents = {
+            candles: 'candlestick',
+            orderBookSnapshot: 'depth-snapshot',
+            orderBookUpdate: 'depth-update',
+            trades: 'new-trade',
+            prices: 'price-change',
+            currentPrices: 'currentPrices@futures#update',
+            accountOrder: 'df-order-update',
+            accountPosition: 'df-position-update',
+            accountBalance: 'balance-update',
+        };
+    }
+
+    // --- Static Utilities ---
+
+    static nowSeconds() { return Math.floor(Date.now() / 1000); }
+    static buildPair(base, target, ecode = 'B') { return `${ecode}-${base}_${target}`; }
+    static parsePair(pair) {
+        const match = pair.match(/^([A-Z])-([A-Z0-9]+)_([A-Z0-9]+)$/);
+        if (match) return { ecode: match[1], base: match[2], target: match[3] };
+        return null;
+    }
+
+    /**
+     * Helper to calculate estimated liquidation price for Isolated Margin.
+     */
+    static calculateLiquidationPrice(entryPrice, leverage, side, mm = 0.005) {
+        const dir = side.toLowerCase() === 'buy' || side.toLowerCase() === 'long' ? 1 : -1;
+        if (dir === 1) {
+            return entryPrice * (1 - (1 / leverage) + mm);
+        } else {
+            return entryPrice * (1 + (1 / leverage) - mm);
+        }
     }
 
     // --- Private Helpers ---
 
     _log(...args) {
         if (this.debug) {
-            console.log('[Binance-Futures-Client]', ...args);
+            console.log(`[Binance-Futures] ${new Date().toISOString()}`, ...args);
         }
+    }
+
+    /**
+     * Normalizes a symbol string (e.g., 'B-BTC_USDT' -> 'BTCUSDT').
+     * @param {string} pair 
+     * @returns {string}
+     */
+    normalizeSymbol(pair) {
+        if (!pair) return '';
+        // Handles both CoinDCX style 'B-BTC_USDT' and Binance style 'BTCUSDT'
+        return pair.replace(/^B-/, '').replace('_', '').toUpperCase();
     }
 
     /**
      * Internal: Generates HMAC-SHA256 signature for requests.
-     * @param {string} queryString 
-     * @returns {string}
-     * @private
      */
     _generateSignature(queryString) {
-        if (!this.apiSecret) {
-            throw new Error('API secret required for authenticated requests');
-        }
-        return crypto
-            .createHmac('sha256', this.apiSecret)
-            .update(queryString)
-            .digest('hex');
+        if (!this.apiSecret) throw new BinanceError('API secret missing');
+        return crypto.createHmac('sha256', this.apiSecret).update(queryString).digest('hex');
     }
 
     /**
      * Internal: Generic request handler with auto-signing.
-     * @private
      */
     async _request(method, path, data = {}, isPublic = false) {
         const url = `${this.apiBase}${path}`;
         const headers = {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'User-Agent': 'Binance-Node-Client/1.0.0'
         };
 
         if (this.apiKey) {
@@ -86,9 +152,7 @@ class BinanceFuturesClient extends EventEmitter {
 
         let queryString = '';
         if (!isPublic) {
-            if (!this.apiKey || !this.apiSecret) {
-                throw new Error('API Key and Secret are required for authenticated requests');
-            }
+            if (!this.apiKey || !this.apiSecret) throw new BinanceError('API Key/Secret required');
             data.timestamp = Date.now();
             data.recvWindow = this.recvWindow;
             
@@ -112,291 +176,244 @@ class BinanceFuturesClient extends EventEmitter {
                 method,
                 url: fullUrl,
                 headers,
+                timeout: 15000
             });
             return response.data;
         } catch (error) {
-            const errorData = error.response ? error.response.data : error.message;
-            this._log(`Request Error:`, errorData);
-            throw errorData;
+            if (error.response) {
+                throw new BinanceAPIError(
+                    error.response.data.msg || error.response.statusText,
+                    error.response.status,
+                    error.response.data,
+                    method, url
+                );
+            }
+            throw new BinanceNetworkError(error.message, error);
         }
     }
 
     // --- Public Market Data ---
 
-    async getPing() {
-        return this._request('GET', '/fapi/v1/ping', {}, true);
-    }
+    async getPing() { return this._request('GET', '/fapi/v1/ping', {}, true); }
+    async getServerTime() { return this._request('GET', '/fapi/v1/time', {}, true); }
+    async getExchangeInfo() { return this._request('GET', '/fapi/v1/exchangeInfo', {}, true); }
 
-    async getServerTime() {
-        return this._request('GET', '/fapi/v1/time', {}, true);
-    }
-
-    async getExchangeInfo() {
-        return this._request('GET', '/fapi/v1/exchangeInfo', {}, true);
-    }
-
-    async getOrderBook(symbol, limit = 100) {
+    async getOrderBook(pair, limit = 100) {
+        const symbol = this.normalizeSymbol(pair);
         return this._request('GET', '/fapi/v1/depth', { symbol, limit }, true);
     }
 
-    async getKlines(symbol, interval, options = {}) {
+    async getKlines(pair, interval, options = {}) {
+        const symbol = this.normalizeSymbol(pair);
         const params = { symbol, interval, ...options };
         return this._request('GET', '/fapi/v1/klines', params, true);
     }
 
-    async getTickerPrice(symbol) {
+    async getTickerPrice(pair) {
+        const symbol = this.normalizeSymbol(pair);
         const params = symbol ? { symbol } : {};
         return this._request('GET', '/fapi/v1/ticker/price', params, true);
     }
 
-    async getMarkPrice(symbol) {
+    async getMarkPrice(pair) {
+        const symbol = this.normalizeSymbol(pair);
         const params = symbol ? { symbol } : {};
         return this._request('GET', '/fapi/v1/premiumIndex', params, true);
     }
 
-    async getFundingRateHistory(symbol, limit = 100) {
+    async getFundingRateHistory(pair, limit = 100) {
+        const symbol = this.normalizeSymbol(pair);
         return this._request('GET', '/fapi/v1/fundingRate', { symbol, limit }, true);
     }
 
-    async getOpenInterestHistory(symbol, period, options = {}) {
+    async getInstrumentDetails(pair) {
+        const normalized = this.normalizeSymbol(pair);
+        const info = await this.getExchangeInfo();
+        const details = info.symbols.find(s => s.symbol === normalized);
+        if (!details) throw new BinanceError(`Instrument ${pair} not found`);
+        return details;
+    }
+
+    // Advanced Stats
+    async getOpenInterestHistory(pair, period, options = {}) {
+        const symbol = this.normalizeSymbol(pair);
         return this._request('GET', '/futures/data/openInterestHist', { symbol, period, ...options }, true);
     }
 
-    async getTopLongShortPositionRatio(symbol, period, options = {}) {
+    async getTopLongShortPositionRatio(pair, period, options = {}) {
+        const symbol = this.normalizeSymbol(pair);
         return this._request('GET', '/futures/data/topLongShortPositionRatio', { symbol, period, ...options }, true);
     }
 
-    async getTopLongShortAccountRatio(symbol, period, options = {}) {
-        return this._request('GET', '/futures/data/topLongShortAccountRatio', { symbol, period, ...options }, true);
-    }
-
-    async getGlobalLongShortAccountRatio(symbol, period, options = {}) {
-        return this._request('GET', '/futures/data/globalLongShortAccountRatio', { symbol, period, ...options }, true);
-    }
-
-    async getTakerBuySellVolume(symbol, period, options = {}) {
+    async getTakerBuySellVolume(pair, period, options = {}) {
+        const symbol = this.normalizeSymbol(pair);
         return this._request('GET', '/futures/data/takerlongshortRatio', { symbol, period, ...options }, true);
-    }
-
-    async getBasis(symbol, period, options = {}) {
-        return this._request('GET', '/futures/data/basis', { symbol, period, ...options }, true);
-    }
-
-    async getAssetIndex(symbol) {
-        const params = symbol ? { symbol } : {};
-        return this._request('GET', '/fapi/v1/assetIndex', params, true);
-    }
-
-    async getAdlQuantile(symbol) {
-        const params = symbol ? { symbol } : {};
-        return this._request('GET', '/fapi/v1/adlQuantile', params, false);
     }
 
     // --- Authenticated Account & Trading ---
 
-    async getBalance() {
-        return this._request('GET', '/fapi/v2/balance', {}, false);
-    }
+    async getBalance() { return this._request('GET', '/fapi/v2/balance', {}, false); }
+    async getAccount() { return this._request('GET', '/fapi/v2/account', {}, false); }
 
-    async getAccount() {
-        return this._request('GET', '/fapi/v2/account', {}, false);
-    }
-
-    async getPositionRisk(symbol) {
+    async getPositionRisk(pair) {
+        const symbol = this.normalizeSymbol(pair);
         const params = symbol ? { symbol } : {};
         return this._request('GET', '/fapi/v2/positionRisk', params, false);
     }
 
-    async setLeverage(symbol, leverage) {
+    async setLeverage(pair, leverage) {
+        const symbol = this.normalizeSymbol(pair);
         return this._request('POST', '/fapi/v1/leverage', { symbol, leverage }, false);
     }
 
     async createOrder(params) {
+        if (params.pair) {
+            params.symbol = this.normalizeSymbol(params.pair);
+            delete params.pair;
+        }
         return this._request('POST', '/fapi/v1/order', params, false);
     }
 
-    async getOrder(symbol, orderId, origClientOrderId) {
+    async getOrder(pair, orderId, origClientOrderId) {
+        const symbol = this.normalizeSymbol(pair);
         const params = { symbol };
         if (orderId) params.orderId = orderId;
         if (origClientOrderId) params.origClientOrderId = origClientOrderId;
         return this._request('GET', '/fapi/v1/order', params, false);
     }
 
-    async cancelOrder(symbol, orderId, origClientOrderId) {
+    async cancelOrder(pair, orderId, origClientOrderId) {
+        const symbol = this.normalizeSymbol(pair);
         const params = { symbol };
         if (orderId) params.orderId = orderId;
         if (origClientOrderId) params.origClientOrderId = origClientOrderId;
         return this._request('DELETE', '/fapi/v1/order', params, false);
     }
 
-    async getOpenOrders(symbol) {
+    async getOpenOrders(pair) {
+        const symbol = this.normalizeSymbol(pair);
         const params = symbol ? { symbol } : {};
         return this._request('GET', '/fapi/v1/openOrders', params, false);
     }
 
-    async getAllOrders(symbol, options = {}) {
-        const params = { symbol, ...options };
-        return this._request('GET', '/fapi/v1/allOrders', params, false);
-    }
-
-    async getPositionMode() {
-        return this._request('GET', '/fapi/v1/positionSide/dual', {}, false);
-    }
-
-    async setPositionMode(dualSidePosition) {
-        return this._request('POST', '/fapi/v1/positionSide/dual', { dualSidePosition }, false);
-    }
-
-    async getMultiAssetsMargin() {
-        return this._request('GET', '/fapi/v1/multiAssetsMargin', {}, false);
-    }
-
-    async setMultiAssetsMargin(multiAssetsMargin) {
-        return this._request('POST', '/fapi/v1/multiAssetsMargin', { multiAssetsMargin }, false);
-    }
-
-    async getUserCommissionRate(symbol) {
-        return this._request('GET', '/fapi/v1/commissionRate', { symbol }, false);
-    }
-
-    async getFeeBurnStatus() {
-        return this._request('GET', '/fapi/v1/feeBurn', {}, false);
-    }
-
-    async setFeeBurnStatus(feeBurn) {
-        return this._request('POST', '/fapi/v1/feeBurn', { feeBurn }, false);
-    }
+    async getPositionMode() { return this._request('GET', '/fapi/v1/positionSide/dual', {}, false); }
+    async setPositionMode(dualSidePosition) { return this._request('POST', '/fapi/v1/positionSide/dual', { dualSidePosition }, false); }
 
     // --- WebSocket Implementation ---
 
-    /**
-     * Connects to a public WebSocket stream.
-     * @param {string} stream - Stream name (e.g., 'btcusdt@aggTrade')
-     * @returns {WebSocket}
-     */
-    subscribeMarketStream(stream) {
+    _normalizeCandle(data, pair) {
+        const k = data.k;
+        return {
+            channel: this.wsEvents.candles,
+            eventTime: data.E,
+            open: parseFloat(k.o),
+            high: parseFloat(k.h),
+            low: parseFloat(k.l),
+            close: parseFloat(k.c),
+            volume: parseFloat(k.v),
+            openTime: k.t,
+            closeTime: k.T,
+            pair: pair,
+            symbol: k.s,
+            raw: data
+        };
+    }
+
+    _normalizeDepth(data) {
+        const mapLevels = (lvls) => lvls.map(([p, q]) => ({ price: parseFloat(p), quantity: parseFloat(q) }));
+        return {
+            timestamp: data.E,
+            bids: mapLevels(data.b),
+            asks: mapLevels(data.a),
+            symbol: data.s,
+            raw: data
+        };
+    }
+
+    _normalizeTrade(data) {
+        return {
+            timestamp: data.E,
+            price: parseFloat(data.p),
+            quantity: parseFloat(data.q),
+            isMaker: data.m,
+            symbol: data.s,
+            raw: data
+        };
+    }
+
+    _normalizeUserData(data) {
+        // Broadly map USER_DATA events to CoinDCX-like names if possible
+        if (data.e === 'ORDER_TRADE_UPDATE') {
+            return { event: this.wsEvents.accountOrder, data };
+        } else if (data.e === 'ACCOUNT_UPDATE') {
+            return { event: this.wsEvents.accountBalance, data };
+        }
+        return { event: 'userData', data };
+    }
+
+    subscribeMarketStream(stream, pair, type) {
         const url = `${this.wsBase}/${stream}`;
         const ws = new WebSocket(url);
 
-        ws.on('open', () => {
-            this._log(`WS Market Connected: ${stream}`);
-            this.emit('ws:market:connect', { stream });
-        });
+        ws.on('open', () => this._log(`WS Connected: ${stream}`));
+        ws.on('message', (msg) => {
+            const data = JSON.parse(msg.toString());
+            let normalized = data;
+            let event = type;
 
-        ws.on('message', (data) => {
-            const parsed = JSON.parse(data.toString());
-            this.emit(stream, parsed);
-        });
+            if (type === 'candlestick') normalized = this._normalizeCandle(data, pair);
+            else if (type === 'depth') normalized = this._normalizeDepth(data);
+            else if (type === 'trade') normalized = this._normalizeTrade(data);
 
-        ws.on('error', (err) => {
-            this._log(`WS Market Error (${stream}):`, err.message);
-            this.emit('ws:market:error', { stream, error: err });
-        });
-
-        ws.on('close', () => {
-            this._log(`WS Market Closed: ${stream}`);
-            this.emit('ws:market:close', { stream });
+            this.emit(`ws:${event}`, normalized);
+            this.emit(stream, normalized);
         });
 
         return ws;
     }
 
-    /**
-     * Subscribe to all market tickers.
-     */
-    subscribeAllMarketTickers() {
-        return this.subscribeMarketStream('!ticker@arr');
+    wsSubscribeCandles(pair, interval = '1m') {
+        const symbol = this.normalizeSymbol(pair).toLowerCase();
+        return this.subscribeMarketStream(`${symbol}@kline_${interval}`, pair, 'candlestick');
     }
 
-    /**
-     * Subscribe to all book tickers.
-     */
-    subscribeAllBookTickers() {
-        return this.subscribeMarketStream('!bookTicker');
+    wsSubscribeOrderBook(pair, depth = 20) {
+        const symbol = this.normalizeSymbol(pair).toLowerCase();
+        return this.subscribeMarketStream(`${symbol}@depth${depth}`, pair, 'depth');
     }
 
-    /**
-     * Subscribe to market-wide liquidation orders.
-     */
-    subscribeAllLiquidationOrders() {
-        return this.subscribeMarketStream('!forceOrder@arr');
+    wsSubscribeTrades(pair) {
+        const symbol = this.normalizeSymbol(pair).toLowerCase();
+        return this.subscribeMarketStream(`${symbol}@aggTrade`, pair, 'trade');
     }
 
-    /**
-     * Manages User Data Stream (ListenKey life cycle + WebSocket).
-     * @returns {Promise<WebSocket>}
-     */
     async subscribeUserStream() {
-        if (this.ws && this.ws.readyState === WebSocket.OPEN) return this.ws;
+        if (!this.listenKey) {
+            const res = await this._request('POST', '/fapi/v1/listenKey', {}, true);
+            this.listenKey = res.listenKey;
+            this.listenKeyInterval = setInterval(() => {
+                this._request('PUT', '/fapi/v1/listenKey', { listenKey: this.listenKey }, true)
+                    .catch(e => this._log('ListenKey renewal failed', e));
+            }, 30 * 60 * 1000);
+        }
 
-        // 1. Create ListenKey
-        const { listenKey } = await this._request('POST', '/fapi/v1/listenKey', {}, true);
-        this.listenKey = listenKey;
-        this._log('Created ListenKey:', this.listenKey);
-
-        // 2. Setup Keep-alive (every 30 mins)
-        this.listenKeyInterval = setInterval(async () => {
-            try {
-                await this._request('PUT', '/fapi/v1/listenKey', { listenKey: this.listenKey }, true);
-                this._log('Renewed ListenKey');
-            } catch (err) {
-                this._log('Failed to renew ListenKey:', err.message);
-            }
-        }, 30 * 60 * 1000);
-
-        // 3. Connect to User Stream
         const url = `${this.wsUserBase}/${this.listenKey}`;
         this.ws = new WebSocket(url);
 
-        this.ws.on('open', () => {
-            this._log('WS User Connected');
-            this.emit('ws:user:connect', { listenKey: this.listenKey });
-        });
-
-        this.ws.on('message', (data) => {
-            const parsed = JSON.parse(data.toString());
-            this.emit('userData', parsed);
-            if (parsed.e) this.emit(parsed.e, parsed);
-        });
-
-        this.ws.on('error', (err) => {
-            this._log('WS User Error:', err.message);
-            this.emit('ws:user:error', { error: err });
-        });
-
-        this.ws.on('close', () => {
-            this._log('WS User Closed');
-            this.emit('ws:user:close');
-            this.unsubscribeUserStream();
+        this.ws.on('message', (msg) => {
+            const data = JSON.parse(msg.toString());
+            const { event, data: normalized } = this._normalizeUserData(data);
+            this.emit(`ws:${event}`, normalized);
+            this.emit('userData', data);
         });
 
         return this.ws;
     }
-
-    /**
-     * Closes the User Data Stream and clears intervals.
-     */
-    async unsubscribeUserStream() {
-        if (this.listenKeyInterval) {
-            clearInterval(this.listenKeyInterval);
-            this.listenKeyInterval = null;
-        }
-
-        if (this.listenKey) {
-            try {
-                await this._request('DELETE', '/fapi/v1/listenKey', { listenKey: this.listenKey }, true);
-                this._log('Deleted ListenKey');
-            } catch (err) {
-                this._log('Failed to delete ListenKey:', err.message);
-            }
-            this.listenKey = null;
-        }
-
-        if (this.ws) {
-            this.ws.close();
-            this.ws = null;
-        }
-    }
 }
 
-module.exports = BinanceFuturesClient;
+module.exports = {
+    BinanceFuturesClient,
+    BinanceError,
+    BinanceAPIError,
+    BinanceNetworkError
+};

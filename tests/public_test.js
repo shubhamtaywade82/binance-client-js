@@ -1,4 +1,4 @@
-const BinanceFuturesClient = require('../binance-futures-client');
+const { BinanceFuturesClient } = require('../binance-futures-client');
 
 const client = new BinanceFuturesClient({
     testnet: true,

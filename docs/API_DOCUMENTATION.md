@@ -5,6 +5,8 @@
 ### Constructor
 
 ```javascript
+const { BinanceFuturesClient } = require('binance-client-js');
+
 const client = new BinanceFuturesClient({
     apiKey: '...',
     apiSecret: '...',
