@@ -539,6 +539,32 @@ class BinanceFuturesClient extends EventEmitter {
                     time: data.o.T,
                     raw: data
                 } : data;
+            } else if (type === 'compositeIndex') {
+                normalized = {
+                    symbol: data.s,
+                    time: data.E,
+                    close: parseFloat(data.p),
+                    composition: data.c ? data.c.map(item => ({
+                        baseAsset: item.b,
+                        quoteAsset: item.q,
+                        weight: parseFloat(item.w),
+                        price: parseFloat(item.p)
+                    })) : [],
+                    raw: data
+                };
+            } else if (type === 'rollingWindowTicker') {
+                normalized = {
+                    symbol: data.s,
+                    openPrice: parseFloat(data.o),
+                    highPrice: parseFloat(data.h),
+                    lowPrice: parseFloat(data.l),
+                    lastPrice: parseFloat(data.c),
+                    volume: parseFloat(data.v),
+                    quoteVolume: parseFloat(data.q),
+                    openTime: data.O,
+                    closeTime: data.C,
+                    raw: data
+                };
             }
 
             this.emit(`ws:${event}`, normalized);
