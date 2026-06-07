@@ -203,16 +203,69 @@ class BinanceFuturesClient extends EventEmitter {
         return this._request('GET', '/fapi/v1/depth', { symbol, limit }, true);
     }
 
+    async getTrades(pair, limit = 500) {
+        const symbol = this.normalizeSymbol(pair);
+        return this._request('GET', '/fapi/v1/trades', { symbol, limit }, true);
+    }
+
+    async getHistoricalTrades(pair, limit = 500, fromId = null) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = { symbol, limit };
+        if (fromId) params.fromId = fromId;
+        return this._request('GET', '/fapi/v1/historicalTrades', params, true);
+    }
+
+    async getAggregateTrades(pair, options = {}) {
+        const symbol = this.normalizeSymbol(pair);
+        return this._request('GET', '/fapi/v1/aggTrades', { symbol, ...options }, true);
+    }
+
     async getKlines(pair, interval, options = {}) {
         const symbol = this.normalizeSymbol(pair);
         const params = { symbol, interval, ...options };
         return this._request('GET', '/fapi/v1/klines', params, true);
     }
 
+    async getContinuousKlines(pair, contractType, interval, options = {}) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = { pair: symbol, contractType, interval, ...options };
+        return this._request('GET', '/fapi/v1/continuousKlines', params, true);
+    }
+
+    async getIndexPriceKlines(pair, interval, options = {}) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = { pair: symbol, interval, ...options };
+        return this._request('GET', '/fapi/v1/indexPriceKlines', params, true);
+    }
+
+    async getMarkPriceKlines(pair, interval, options = {}) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = { symbol, interval, ...options };
+        return this._request('GET', '/fapi/v1/markPriceKlines', params, true);
+    }
+
     async getTickerPrice(pair) {
         const symbol = this.normalizeSymbol(pair);
         const params = symbol ? { symbol } : {};
         return this._request('GET', '/fapi/v1/ticker/price', params, true);
+    }
+
+    async getTicker24h(pair) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = symbol ? { symbol } : {};
+        return this._request('GET', '/fapi/v1/ticker/24hr', params, true);
+    }
+
+    async getBookTicker(pair) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = symbol ? { symbol } : {};
+        return this._request('GET', '/fapi/v1/ticker/bookTicker', params, true);
+    }
+
+    async getTradingDayTicker(pair) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = symbol ? { symbol } : {};
+        return this._request('GET', '/fapi/v1/tradingDayTicker', params, true);
     }
 
     async getMarkPrice(pair) {
@@ -456,6 +509,57 @@ class BinanceFuturesClient extends EventEmitter {
         return this._request('POST', '/fapi/v1/feeBurn', { feeBurn }, false);
     }
 
+    async getUserTrades(pair, options = {}) {
+        const symbol = this.normalizeSymbol(pair);
+        return this._request('GET', '/fapi/v1/userTrades', { symbol, ...options }, false);
+    }
+
+    async getIncomeHistory(options = {}) {
+        if (options.pair) {
+            options.symbol = this.normalizeSymbol(options.pair);
+            delete options.pair;
+        }
+        return this._request('GET', '/fapi/v1/income', options, false);
+    }
+
+    async getLeverageBrackets(pair) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = symbol ? { symbol } : {};
+        return this._request('GET', '/fapi/v1/leverageBracket', params, false);
+    }
+
+    async getApiTradingStatus() {
+        return this._request('GET', '/fapi/v1/apiTradingStatus', {}, false);
+    }
+
+    async getPositionMarginHistory(pair, options = {}) {
+        const symbol = this.normalizeSymbol(pair);
+        return this._request('GET', '/fapi/v1/positionMargin/history', { symbol, ...options }, false);
+    }
+
+    async getRateLimitOrder() {
+        return this._request('GET', '/fapi/v1/rateLimit/order', {}, false);
+    }
+
+    async getInsuranceFundBalance(options = {}) {
+        return this._request('GET', '/fapi/v1/insuranceFundBalance', options, true);
+    }
+
+    async getPmExchangeInfo() {
+        return this._request('GET', '/fapi/v1/pmExchangeInfo', {}, true);
+    }
+
+    async getDelistSchedule(pair) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = symbol ? { symbol } : {};
+        return this._request('GET', '/fapi/v1/delistSchedule', params, true);
+    }
+
+    async setCountdownCancelAll(pair, countdownTime) {
+        const symbol = this.normalizeSymbol(pair);
+        return this._request('POST', '/fapi/v1/countdownCancelAll', { symbol, countdownTime }, false);
+    }
+
     async getPositionMode() { return this._request('GET', '/fapi/v1/positionSide/dual', {}, false); }
     async setPositionMode(dualSidePosition) { return this._request('POST', '/fapi/v1/positionSide/dual', { dualSidePosition }, false); }
 
@@ -565,6 +669,75 @@ class BinanceFuturesClient extends EventEmitter {
                     closeTime: data.C,
                     raw: data
                 };
+            } else if (type === 'markPrice') {
+                normalized = {
+                    symbol: data.s,
+                    markPrice: parseFloat(data.p),
+                    indexPrice: parseFloat(data.i),
+                    estimatedSettlePrice: parseFloat(data.P),
+                    fundingRate: parseFloat(data.r),
+                    nextFundingTime: data.T,
+                    raw: data
+                };
+            } else if (type === 'allMarkPrices') {
+                normalized = data.map(item => ({
+                    symbol: item.s,
+                    markPrice: parseFloat(item.p),
+                    indexPrice: parseFloat(item.i),
+                    estimatedSettlePrice: parseFloat(item.P),
+                    fundingRate: parseFloat(item.r),
+                    nextFundingTime: item.T,
+                    raw: item
+                }));
+            } else if (type === 'liquidationOrder') {
+                const o = data.o;
+                normalized = {
+                    symbol: o.s,
+                    side: o.S,
+                    orderType: o.o,
+                    timeInForce: o.f,
+                    originalQuantity: parseFloat(o.q),
+                    price: parseFloat(o.p),
+                    averagePrice: parseFloat(o.ap),
+                    orderStatus: o.X,
+                    lastFilledQuantity: parseFloat(o.l),
+                    filledAccumulatedQuantity: parseFloat(o.z),
+                    time: o.T,
+                    raw: data
+                };
+            } else if (type === 'miniTicker') {
+                normalized = {
+                    symbol: data.s,
+                    closePrice: parseFloat(data.c),
+                    openPrice: parseFloat(data.o),
+                    highPrice: parseFloat(data.h),
+                    lowPrice: parseFloat(data.l),
+                    volume: parseFloat(data.v),
+                    quoteVolume: parseFloat(data.q),
+                    eventTime: data.E,
+                    raw: data
+                };
+            } else if (type === 'allMiniTickers') {
+                normalized = data.map(item => ({
+                    symbol: item.s,
+                    closePrice: parseFloat(item.c),
+                    openPrice: parseFloat(item.o),
+                    highPrice: parseFloat(item.h),
+                    lowPrice: parseFloat(item.l),
+                    volume: parseFloat(item.v),
+                    quoteVolume: parseFloat(item.q),
+                    eventTime: item.E,
+                    raw: item
+                }));
+            } else if (type === 'assetIndex' || type === 'allAssetIndices') {
+                const mapAsset = (item) => ({
+                    asset: item.s,
+                    indexPrice: parseFloat(item.i),
+                    bidPrice: parseFloat(item.b),
+                    askPrice: parseFloat(item.a),
+                    raw: item
+                });
+                normalized = Array.isArray(data) ? data.map(mapAsset) : mapAsset(data);
             }
 
             this.emit(`ws:${event}`, normalized);
@@ -601,6 +774,11 @@ class BinanceFuturesClient extends EventEmitter {
         return this.subscribeMarketStream('!forceOrder@arr', null, 'allLiquidationOrders');
     }
 
+    wsSubscribeLiquidationOrder(pair) {
+        const symbol = this.normalizeSymbol(pair).toLowerCase();
+        return this.subscribeMarketStream(`${symbol}@forceOrder`, pair, 'liquidationOrder');
+    }
+
     wsSubscribeCompositeIndex(pair) {
         const symbol = this.normalizeSymbol(pair).toLowerCase();
         return this.subscribeMarketStream(`${symbol}@compositeIndex`, pair, 'compositeIndex');
@@ -622,6 +800,37 @@ class BinanceFuturesClient extends EventEmitter {
     wsSubscribeRollingWindowTicker(pair, window = '1h') {
         const symbol = this.normalizeSymbol(pair).toLowerCase();
         return this.subscribeMarketStream(`${symbol}@ticker_${window}`, pair, 'rollingWindowTicker');
+    }
+
+    wsSubscribeMarkPrice(pair, speed = '1s') {
+        const symbol = this.normalizeSymbol(pair).toLowerCase();
+        const suffix = speed === '1s' ? '@1s' : '';
+        return this.subscribeMarketStream(`${symbol}@markPrice${suffix}`, pair, 'markPrice');
+    }
+
+    wsSubscribeContinuousCandles(pair, contractType, interval = '1m') {
+        const symbol = this.normalizeSymbol(pair).toLowerCase();
+        const type = contractType.toLowerCase(); // e.g. 'perpetual'
+        return this.subscribeMarketStream(`${symbol}@continuousKline_${type}_${interval}`, pair, 'candlestick');
+    }
+
+    wsSubscribeIndexPriceCandles(pair, interval = '1m') {
+        const symbol = this.normalizeSymbol(pair).toLowerCase();
+        return this.subscribeMarketStream(`${symbol}@indexPriceKline_${interval}`, pair, 'candlestick');
+    }
+
+    wsSubscribeMarkPriceCandles(pair, interval = '1m') {
+        const symbol = this.normalizeSymbol(pair).toLowerCase();
+        return this.subscribeMarketStream(`${symbol}@markPriceKline_${interval}`, pair, 'candlestick');
+    }
+
+    wsSubscribeMiniTicker(pair) {
+        const symbol = this.normalizeSymbol(pair).toLowerCase();
+        return this.subscribeMarketStream(`${symbol}@miniTicker`, pair, 'miniTicker');
+    }
+
+    wsSubscribeAllMiniTickers() {
+        return this.subscribeMarketStream('!miniTicker@arr', null, 'allMiniTickers');
     }
 
     async subscribeUserStream() {

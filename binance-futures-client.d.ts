@@ -17,8 +17,17 @@ export class BinanceFuturesClient extends EventEmitter {
     getServerTime(): Promise<any>;
     getExchangeInfo(): Promise<any>;
     getOrderBook(symbol: string, limit?: number): Promise<any>;
+    getTrades(symbol: string, limit?: number): Promise<any>;
+    getHistoricalTrades(symbol: string, limit?: number, fromId?: number): Promise<any>;
+    getAggregateTrades(symbol: string, options?: any): Promise<any>;
     getKlines(symbol: string, interval: string, options?: any): Promise<any>;
+    getContinuousKlines(symbol: string, contractType: string, interval: string, options?: any): Promise<any>;
+    getIndexPriceKlines(symbol: string, interval: string, options?: any): Promise<any>;
+    getMarkPriceKlines(symbol: string, interval: string, options?: any): Promise<any>;
     getTickerPrice(symbol?: string): Promise<any>;
+    getTicker24h(symbol?: string): Promise<any>;
+    getBookTicker(symbol?: string): Promise<any>;
+    getTradingDayTicker(symbol?: string): Promise<any>;
     getMarkPrice(symbol?: string): Promise<any>;
     getFundingRateHistory(symbol: string, limit?: number): Promise<any>;
     getInstrumentDetails(symbol: string): Promise<any>;
@@ -37,6 +46,9 @@ export class BinanceFuturesClient extends EventEmitter {
     getSymbolConfig(symbol?: string): Promise<any>;
     getQuantitativeRules(): Promise<any>;
     getForceOrders(options?: any): Promise<any>;
+    getInsuranceFundBalance(options?: any): Promise<any>;
+    getPmExchangeInfo(): Promise<any>;
+    getDelistSchedule(symbol?: string): Promise<any>;
     requestOrderDownload(options?: any): Promise<any>;
     getOrderDownloadStatus(downloadId: string): Promise<any>;
     requestTradeDownload(options?: any): Promise<any>;
@@ -57,6 +69,13 @@ export class BinanceFuturesClient extends EventEmitter {
     getOpenOrders(symbol?: string): Promise<any>;
     getAllOrders(symbol: string, options?: any): Promise<any>;
     cancelAllOpenOrders(symbol: string): Promise<any>;
+    getUserTrades(symbol: string, options?: any): Promise<any>;
+    getIncomeHistory(options?: any): Promise<any>;
+    getLeverageBrackets(symbol?: string): Promise<any>;
+    getApiTradingStatus(): Promise<any>;
+    getPositionMarginHistory(symbol: string, options?: any): Promise<any>;
+    getRateLimitOrder(): Promise<any>;
+    setCountdownCancelAll(symbol: string, countdownTime: number): Promise<any>;
     getPositionMode(): Promise<any>;
     setPositionMode(dualSidePosition: boolean): Promise<any>;
     setMarginType(symbol: string, marginType: 'ISOLATED' | 'CROSSED'): Promise<any>;
@@ -75,11 +94,18 @@ export class BinanceFuturesClient extends EventEmitter {
     wsSubscribeAllMarketTickers(): WebSocket;
     wsSubscribeAllBookTickers(): WebSocket;
     wsSubscribeAllLiquidationOrders(): WebSocket;
+    wsSubscribeLiquidationOrder(pair: string): WebSocket;
     wsSubscribeCompositeIndex(pair: string): WebSocket;
     wsSubscribeAllMarkPrices(): WebSocket;
     wsSubscribeAllAssetIndices(): WebSocket;
     wsSubscribeAssetIndex(asset: string): WebSocket;
     wsSubscribeRollingWindowTicker(pair: string, window?: string): WebSocket;
+    wsSubscribeMarkPrice(pair: string, speed?: '1s' | '3s'): WebSocket;
+    wsSubscribeContinuousCandles(pair: string, contractType: string, interval?: string): WebSocket;
+    wsSubscribeIndexPriceCandles(pair: string, interval?: string): WebSocket;
+    wsSubscribeMarkPriceCandles(pair: string, interval?: string): WebSocket;
+    wsSubscribeMiniTicker(pair: string): WebSocket;
+    wsSubscribeAllMiniTickers(): WebSocket;
     subscribeUserStream(): Promise<WebSocket>;
 }
 

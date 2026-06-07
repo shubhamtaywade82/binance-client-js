@@ -30,11 +30,38 @@ Current exchange trading rules and symbol information.
 #### `getOrderBook(symbol, limit)`
 Order book depth. `limit` default 100.
 
+#### `getTrades(symbol, limit)`
+Get recent market trades.
+
+#### `getHistoricalTrades(symbol, limit, fromId)`
+Get older market trades.
+
+#### `getAggregateTrades(symbol, options)`
+Get aggregate trades.
+
 #### `getKlines(symbol, interval, options)`
-Kline/candlestick bars for a symbol.
+Standard kline data.
+
+#### `getContinuousKlines(symbol, contractType, interval, options)`
+Continuous contract kline data.
+
+#### `getIndexPriceKlines(symbol, interval, options)`
+Index price kline data.
+
+#### `getMarkPriceKlines(symbol, interval, options)`
+Mark price kline data.
 
 #### `getTickerPrice(symbol)`
+Latest price for a symbol.
+
+#### `getTicker24h(symbol)`
 24 hour rolling window price change statistics.
+
+#### `getBookTicker(symbol)`
+Best price/qty on the order book.
+
+#### `getTradingDayTicker(symbol)`
+Price change statistics for the trading day.
 
 #### `getMarkPrice(symbol)`
 Mark price and funding rate.
@@ -74,6 +101,36 @@ Binance Leveraged Tokens info.
 
 #### `getIndexPriceConstituents(symbol)`
 Index Price Constituents.
+
+#### `getSymbolConfig(symbol)`
+Symbol configuration info.
+
+#### `getQuantitativeRules()`
+Quantitative trading rules.
+
+#### `getForceOrders(options)`
+Historical liquidation orders.
+
+#### `getInsuranceFundBalance(options)`
+Insurance fund balance history.
+
+#### `getPmExchangeInfo()`
+Portfolio Margin exchange info.
+
+#### `getDelistSchedule(symbol)`
+Delisting schedule info.
+
+#### `requestOrderDownload(options)`
+Request asynchronous order history download.
+
+#### `getOrderDownloadStatus(downloadId)`
+Get status of order download request.
+
+#### `requestTradeDownload(options)`
+Request asynchronous trade history download.
+
+#### `getTradeDownloadStatus(downloadId)`
+Get status of trade download request.
 
 ### Account & Trade Methods (Authenticated)
 
@@ -119,6 +176,27 @@ Get all account orders; active, canceled, or filled.
 #### `cancelAllOpenOrders(symbol)`
 Cancel all open orders on a symbol.
 
+#### `getUserTrades(symbol, options)`
+Get account trade history.
+
+#### `getIncomeHistory(options)`
+Get account income history (funding, liquidations, etc.).
+
+#### `getLeverageBrackets(symbol)`
+Get leverage brackets for a symbol.
+
+#### `getApiTradingStatus()`
+Get user's API trading status.
+
+#### `getPositionMarginHistory(symbol, options)`
+Get history of isolated margin changes.
+
+#### `getRateLimitOrder()`
+Get user's current order rate limit usage.
+
+#### `setCountdownCancelAll(symbol, countdownTime)`
+Set auto-cancel all orders timer (Heartbeat).
+
 #### `getPositionMode()`
 Check if user is in Hedge or One-way position mode.
 
@@ -157,17 +235,50 @@ Normalized depth stream. Event: `ws:depth-snapshot`.
 #### `wsSubscribeTrades(pair)`
 Normalized trade stream. Event: `ws:new-trade`.
 
+#### `wsSubscribeMarkPrice(pair, speed)`
+Mark Price updates. `speed`: "1s" or "3s". Event: `ws:markPrice`.
+
+#### `wsSubscribeContinuousCandles(pair, contractType, interval)`
+Continuous contract candle stream. Event: `ws:candlestick`.
+
+#### `wsSubscribeIndexPriceCandles(pair, interval)`
+Index Price candle stream. Event: `ws:candlestick`.
+
+#### `wsSubscribeMarkPriceCandles(pair, interval)`
+Mark Price candle stream. Event: `ws:candlestick`.
+
+#### `wsSubscribeMiniTicker(pair)`
+Individual symbol mini-ticker updates. Event: `ws:miniTicker`.
+
+#### `wsSubscribeAllMiniTickers()`
+All symbols mini-ticker updates. Event: `ws:allMiniTickers`.
+
 #### `wsSubscribeAllMarketTickers()`
 All Market Tickers updates. Event: `ws:allMarketTickers`.
 
 #### `wsSubscribeAllBookTickers()`
 All Book Tickers updates. Event: `ws:allBookTickers`.
 
+#### `wsSubscribeLiquidationOrder(pair)`
+Individual symbol force order updates. Event: `ws:liquidationOrder`.
+
 #### `wsSubscribeAllLiquidationOrders()`
 Market-wide Liquidation Orders. Event: `ws:allLiquidationOrders`.
 
 #### `wsSubscribeCompositeIndex(pair)`
 Composite Index Price updates. Event: `ws:compositeIndex`.
+
+#### `wsSubscribeAllMarkPrices()`
+All symbols Mark Price updates. Event: `ws:allMarkPrices`.
+
+#### `wsSubscribeAllAssetIndices()`
+All assets Index Price updates (Multi-Assets Mode). Event: `ws:allAssetIndices`.
+
+#### `wsSubscribeAssetIndex(asset)`
+Individual asset Index Price updates. Event: `ws:assetIndex`.
+
+#### `wsSubscribeRollingWindowTicker(pair, window)`
+Rolling window (e.g. "1h", "4h") ticker updates. Event: `ws:rollingWindowTicker`.
 
 #### `subscribeUserStream()`
 Subscribe to the user data stream for account updates. Emits `ws:df-order-update`, `ws:balance-update`, etc.
