@@ -19,7 +19,7 @@ const client = new BinanceFuturesClient({
 #### `getPing()`
 Test connectivity to the Rest API.
 
-#### `getTime()`
+#### `getServerTime()`
 Check server time.
 
 #### `getExchangeInfo()`
@@ -28,44 +28,40 @@ Current exchange trading rules and symbol information.
 #### `getOrderBook(symbol, limit)`
 Order book depth. `limit` default 100.
 
-#### `getRecentTrades(symbol, limit)`
-Get recent market trades.
-
 #### `getKlines(symbol, interval, options)`
 Kline/candlestick bars for a symbol.
 
 #### `getTickerPrice(symbol)`
 24 hour rolling window price change statistics.
 
-#### `getOpenInterest(symbol)`
-Get present open interest of a specific symbol.
-
-#### `getFundingRate(symbol, limit)`
-Get funding rate history.
-
 #### `getMarkPrice(symbol)`
 Mark price and funding rate.
 
-### Account & Trade Methods (Signed)
+#### `getFundingRateHistory(symbol, limit)`
+Get funding rate history.
 
-#### `getAccount()`
-Get current account information.
+### Account & Trade Methods (Authenticated)
 
 #### `getBalance()`
 Get futures account balance.
 
+#### `getAccount()`
+Get current account information.
+
 #### `getPositionRisk(symbol)`
 Get position risk.
 
+#### `setLeverage(symbol, leverage)`
+Change initial leverage.
+
 #### `createOrder(params)`
 Place a new order.
-`params` example: `{ symbol: 'BTCUSDT', side: 'BUY', type: 'LIMIT', quantity: 0.001, price: 60000, timeInForce: 'GTC' }`
-
-#### `cancelOrder(symbol, orderId, origClientOrderId)`
-Cancel an active order.
 
 #### `getOrder(symbol, orderId, origClientOrderId)`
 Check an order's status.
+
+#### `cancelOrder(symbol, orderId, origClientOrderId)`
+Cancel an active order.
 
 #### `getOpenOrders(symbol)`
 Get all open orders on a symbol.
@@ -75,10 +71,13 @@ Get all account orders; active, canceled, or filled.
 
 ### WebSocket Methods
 
-#### `subscribeMarketStream(stream, callback)`
-Subscribe to a market data stream.
-Example streams: `btcusdt@aggTrade`, `btcusdt@kline_1m`, `btcusdt@depth20`.
+#### `subscribeMarketStream(stream)`
+Subscribe to a public market stream. Emits events named after the stream.
+Example streams: `btcusdt@aggTrade`, `btcusdt@markPrice`, `btcusdt@kline_1m`.
 
-#### `subscribeUserStream(callback)`
-Subscribe to user data stream for account updates (orders, balance, etc.).
-Automatically handles `listenKey` creation and keep-alive.
+#### `subscribeUserStream()`
+Subscribe to the user data stream for account updates. Emits `userData` and specific event types like `ORDER_TRADE_UPDATE`.
+Automatically handles `listenKey` creation and renewal.
+
+#### `unsubscribeUserStream()`
+Close the user data stream and clean up resources.

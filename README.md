@@ -20,7 +20,7 @@ npm install axios ws dotenv
 ## Quick Start
 
 ```javascript
-const BinanceFuturesClient = require('binance-client-js');
+const BinanceFuturesClient = require('./binance-futures-client');
 
 const client = new BinanceFuturesClient({
     apiKey: 'YOUR_API_KEY',
@@ -28,39 +28,24 @@ const client = new BinanceFuturesClient({
     testnet: true
 });
 
-// Get Ticker Price
-client.getTickerPrice('BTCUSDT').then(console.log);
+async function run() {
+    // Get Ticker Price
+    const ticker = await client.getTickerPrice('BTCUSDT');
+    console.log('BTCUSDT Price:', ticker.price);
 
-// Subscribe to Market Stream
-client.subscribeMarketStream('btcusdt@aggTrade', (data) => {
-    console.log('Trade:', data);
-});
+    // Subscribe to Market Stream
+    client.subscribeMarketStream('btcusdt@aggTrade');
+    client.on('btcusdt@aggTrade', (data) => {
+        console.log('Trade:', data.p, data.q);
+    });
+}
+
+run();
 ```
 
-## API Reference
+## Documentation
 
-### Market Data
-- `getPing()`
-- `getTime()`
-- `getExchangeInfo()`
-- `getOrderBook(symbol, limit)`
-- `getRecentTrades(symbol, limit)`
-- `getKlines(symbol, interval, options)`
-- `getTickerPrice(symbol)`
-
-### Account & Trade
-- `getAccount()`
-- `getBalance()`
-- `getPositionRisk(symbol)`
-- `createOrder(params)`
-- `cancelOrder(symbol, orderId, origClientOrderId)`
-- `getOrder(symbol, orderId, origClientOrderId)`
-- `getOpenOrders(symbol)`
-- `getAllOrders(symbol, options)`
-
-### WebSocket
-- `subscribeMarketStream(stream, callback)`
-- `subscribeUserStream(callback)`
+See [API_DOCUMENTATION.md](./docs/API_DOCUMENTATION.md) for detailed method references.
 
 ## Examples
 
