@@ -311,3 +311,73 @@ Accessible via the `BinanceFuturesClient` class:
 - **`BinanceFuturesClient.buildPair(base, target)`**: Builds a standard pair string (e.g., `B-BTC_USDT`).
 - **`BinanceFuturesClient.parsePair(pair)`**: Parses a pair string into components.
 - **`BinanceFuturesClient.calculateLiquidationPrice(entry, leverage, side)`**: Calculates estimated liquidation price for Isolated Margin.
+
+## Current USDⓈ-M Futures additions
+
+The client tracks the current Binance USDⓈ-M Futures split between REST, market-stream WebSockets, and the authenticated WebSocket API:
+
+- Production REST: `https://fapi.binance.com`
+- Demo/testnet REST: `https://demo-fapi.binance.com`
+- Production market streams: `wss://fstream.binance.com/ws`
+- Demo/testnet market streams: `wss://demo-fstream.binance.com/ws`
+- Production WebSocket API: `wss://ws-fapi.binance.com/ws-fapi/v1`
+- Demo/testnet WebSocket API: `wss://demo-fapi.binance.com/ws-fapi/v1`
+
+### Constructor URL overrides
+
+```js
+const client = new BinanceFuturesClient({
+  testnet: true,
+  // Optional explicit overrides for private gateways, proxies, or MCP adapters.
+  apiBase: 'https://demo-fapi.binance.com',
+  wsBase: 'wss://demo-fstream.binance.com/ws',
+  wsApiBase: 'wss://demo-fapi.binance.com/ws-fapi/v1'
+});
+```
+
+### REST market data helpers
+
+- `getOpenInterest(symbol)` calls `GET /fapi/v1/openInterest`.
+- `getFundingInfo()` calls `GET /fapi/v1/fundingInfo`.
+- `getTickerPriceV2(symbol?)` calls `GET /fapi/v2/ticker/price`.
+- `getBookTickerV2(symbol?)` calls `GET /fapi/v2/ticker/bookTicker`.
+
+### Algo conditional orders
+
+Binance is migrating USDⓈ-M conditional orders to Algo Service endpoints. Use these helpers for stop-loss, take-profit, and trailing-stop flows where Binance requires algo orders:
+
+- `createAlgoOrder(params)` → `POST /fapi/v1/algoOrder`
+- `cancelAlgoOrder(symbol, algoId?, clientAlgoId?)` → `DELETE /fapi/v1/algoOrder`
+- `cancelAllOpenAlgoOrders(symbol)` → `DELETE /fapi/v1/algoOpenOrders`
+- `getAlgoOrder(symbol, algoId?, clientAlgoId?)` → `GET /fapi/v1/algoOrder`
+- `getOpenAlgoOrders(symbol?)` → `GET /fapi/v1/openAlgoOrders`
+- `getAllAlgoOrders(symbol, options?)` → `GET /fapi/v1/allAlgoOrders`
+
+### WebSocket API trading
+
+Authenticated WebSocket API requests are signed with the same API key and secret used for REST:
+
+```js
+await client.wsApiCreateOrder({
+  symbol: 'BTCUSDT',
+  side: 'BUY',
+  type: 'LIMIT',
+  quantity: 0.001,
+  price: 50000,
+  timeInForce: 'GTC'
+});
+```
+
+Available helpers:
+
+- `wsApiRequest(method, params)` for any signed USDⓈ-M WebSocket API method.
+- `wsApiCreateOrder(params)` sends `order.place`.
+- `wsApiCancelOrder(params)` sends `order.cancel`.
+- `wsApiModifyOrder(params)` sends `order.modify`.
+- `wsApiCreateAlgoOrder(params)` sends `algoOrder.place`.
+- `wsApiCancelAlgoOrder(params)` sends `algoOrder.cancel`.
+
+### Combined market streams and cleanup
+
+- `subscribeCombinedMarketStreams(['btcusdt@aggTrade', 'btcusdt@markPrice'])` opens a combined stream and emits each stream name plus `ws:combined`.
+- `closeAllWebSockets()` closes market, user-data, and combined sockets managed by the client.
