@@ -5,6 +5,12 @@ export interface BinanceFuturesClientOptions {
     apiKey?: string;
     apiSecret?: string;
     testnet?: boolean;
+    /** Use Binance demo endpoints. Explicitly separate from testnet. */
+    demo?: boolean;
+    apiBase?: string;
+    wsBase?: string;
+    wsUserBase?: string;
+    wsApiBase?: string;
     debug?: boolean;
     recvWindow?: number;
 }
@@ -30,6 +36,10 @@ export class BinanceFuturesClient extends EventEmitter {
     getTradingDayTicker(symbol?: string): Promise<any>;
     getMarkPrice(symbol?: string): Promise<any>;
     getFundingRateHistory(symbol: string, limit?: number): Promise<any>;
+    getOpenInterest(symbol: string): Promise<any>;
+    getFundingInfo(): Promise<any>;
+    getTickerPriceV2(symbol?: string): Promise<any>;
+    getBookTickerV2(symbol?: string): Promise<any>;
     getInstrumentDetails(symbol: string): Promise<any>;
     normalizeSymbol(symbol: string): string;
     getOpenInterestHistory(symbol: string, period: string, options?: any): Promise<any>;
@@ -58,12 +68,24 @@ export class BinanceFuturesClient extends EventEmitter {
     getBalance(): Promise<any>;
     getAccount(): Promise<any>;
     getPositionRisk(symbol?: string): Promise<any>;
+    getAccountV3(): Promise<any>;
+    getBalanceV3(): Promise<any>;
+    getPositionRiskV3(symbol?: string): Promise<any>;
     setLeverage(symbol: string, leverage: number): Promise<any>;
     createOrder(params: any): Promise<any>;
+    createTestOrder(params: any): Promise<any>;
     modifyOrder(params: any): Promise<any>;
+    createAlgoOrder(params: any): Promise<any>;
+    cancelAlgoOrder(symbol: string, algoId?: number, clientAlgoId?: string): Promise<any>;
+    cancelAllOpenAlgoOrders(symbol: string): Promise<any>;
+    getAlgoOrder(symbol: string, algoId?: number, clientAlgoId?: string): Promise<any>;
+    getOpenAlgoOrders(symbol?: string): Promise<any>;
+    getAllAlgoOrders(symbol: string, options?: any): Promise<any>;
     createBatchOrders(batchOrders: any[]): Promise<any>;
+    getOrderModifyHistory(symbol: string, options?: any): Promise<any>;
     modifyBatchOrders(batchOrders: any[]): Promise<any>;
     getOrder(symbol: string, orderId?: number, origClientOrderId?: string): Promise<any>;
+    getCurrentOrder(symbol: string, orderId?: number, origClientOrderId?: string): Promise<any>;
     cancelOrder(symbol: string, orderId?: number, origClientOrderId?: string): Promise<any>;
     cancelBatchOrders(symbol: string, orderIdList?: number[], origClientOrderIdList?: string[]): Promise<any>;
     getOpenOrders(symbol?: string): Promise<any>;
@@ -88,6 +110,17 @@ export class BinanceFuturesClient extends EventEmitter {
 
     // WebSocket
     subscribeMarketStream(stream: string, pair?: string, type?: string): WebSocket;
+    subscribeCombinedMarketStreams(streams?: string[]): WebSocket;
+    wsApiRequest(method: string, params?: any): Promise<any>;
+    wsApiCreateOrder(params: any): Promise<any>;
+    wsApiCancelOrder(params: any): Promise<any>;
+    wsApiModifyOrder(params: any): Promise<any>;
+    wsApiCreateAlgoOrder(params: any): Promise<any>;
+    wsApiCancelAlgoOrder(params: any): Promise<any>;
+    closeAllWebSockets(): void;
+    closeUserStream(): Promise<any>;
+    subscribeAllMarketTickers(): WebSocket;
+    subscribeAllBookTickers(): WebSocket;
     wsSubscribeCandles(pair: string, interval?: string): WebSocket;
     wsSubscribeOrderBook(pair: string, depth?: number): WebSocket;
     wsSubscribeTrades(pair: string): WebSocket;

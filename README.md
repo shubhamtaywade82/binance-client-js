@@ -28,7 +28,7 @@ const { BinanceFuturesClient } = require('binance-client-js');
 const client = new BinanceFuturesClient({
     apiKey: 'YOUR_API_KEY',
     apiSecret: 'YOUR_API_SECRET',
-    testnet: true, // Use Testnet for safety
+    testnet: true, // Uses Binance USDⓈ-M Futures testnet endpoints
     debug: true    // See the URLs and events in console
 });
 
@@ -63,6 +63,27 @@ async function run() {
 }
 
 run();
+```
+
+
+### Current USDⓈ-M Futures coverage
+
+This client now exposes production, Binance testnet, and Binance demo URL defaults for REST, market-stream WebSockets, and the signed WebSocket API. You can override `apiBase`, `wsBase`, `wsUserBase`, or `wsApiBase` for private gateways, proxies, or MCP adapters.
+
+Recent USDⓈ-M additions include open interest, funding info, v2 ticker/book ticker helpers, v3 account/position helpers, test/current-order and order-modify-history helpers, Algo Service conditional-order endpoints, signed WebSocket API trading (`order.place`, `order.cancel`, `order.modify`, `algoOrder.place`, `algoOrder.cancel`), combined market streams, and `closeAllWebSockets()`/`closeUserStream()` cleanup.
+
+
+## ✅ CI/CD Verification
+
+This repository includes GitHub Actions workflows for pull requests, branch pushes, manual verification, and release publishing:
+
+- **CI** runs on Node.js 20, 22, and 24 with `npm ci`, syntax checks, offline unit tests, export verification, npm package dry-run validation, and a production dependency security audit.
+- **Release** reruns the full verification pipeline before `npm publish`, with a manual dry-run option for validating release credentials and package contents safely.
+
+Local equivalent:
+
+```bash
+npm run verify
 ```
 
 ## 📖 Documentation

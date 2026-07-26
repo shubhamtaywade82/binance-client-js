@@ -55,22 +55,29 @@ class BinanceFuturesClient extends EventEmitter {
         this.apiKey = options.apiKey || '';
         this.apiSecret = options.apiSecret || '';
         this.testnet = options.testnet || false;
+        this.demo = options.demo || false;
         this.debug = options.debug || false;
         this.recvWindow = options.recvWindow || 5000;
 
-        this.apiBase = this.testnet 
-            ? 'https://testnet.binancefuture.com' 
-            : 'https://fapi.binance.com';
-        
-        this.wsBase = this.testnet
-            ? 'wss://fstream.binancefuture.com/ws'
-            : 'wss://fstream.binance.com/ws';
+        this.apiBase = options.apiBase || (this.demo
+            ? 'https://demo-fapi.binance.com'
+            : this.testnet
+                ? 'https://testnet.binancefuture.com'
+                : 'https://fapi.binance.com');
 
-        this.wsUserBase = this.testnet
-            ? 'wss://fstream.binancefuture.com/ws'
-            : 'wss://fstream.binance.com/ws';
+        this.wsBase = options.wsBase || (this.demo
+            ? 'wss://demo-fstream.binance.com/ws'
+            : this.testnet
+                ? 'wss://fstream.binancefuture.com/ws'
+                : 'wss://fstream.binance.com/ws');
+
+        this.wsUserBase = options.wsUserBase || this.wsBase;
+        this.wsApiBase = options.wsApiBase || (this.demo
+            ? 'wss://demo-fapi.binance.com/ws-fapi/v1'
+            : 'wss://ws-fapi.binance.com/ws-fapi/v1');
 
         this.ws = null;
+        this.wsConnections = new Set();
         this.listenKey = null;
         this.listenKeyInterval = null;
 
@@ -131,6 +138,13 @@ class BinanceFuturesClient extends EventEmitter {
     /**
      * Internal: Generates HMAC-SHA256 signature for requests.
      */
+    _buildQueryString(data = {}) {
+        return Object.entries(data)
+            .filter(([, val]) => val !== undefined && val !== null)
+            .map(([key, val]) => `${key}=${encodeURIComponent(val)}`)
+            .join('&');
+    }
+
     _generateSignature(queryString) {
         if (!this.apiSecret) throw new BinanceError('API secret missing');
         return crypto.createHmac('sha256', this.apiSecret).update(queryString).digest('hex');
@@ -140,6 +154,7 @@ class BinanceFuturesClient extends EventEmitter {
      * Internal: Generic request handler with auto-signing.
      */
     async _request(method, path, data = {}, isPublic = false) {
+        const requestData = { ...data };
         const url = `${this.apiBase}${path}`;
         const headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -153,19 +168,15 @@ class BinanceFuturesClient extends EventEmitter {
         let queryString = '';
         if (!isPublic) {
             if (!this.apiKey || !this.apiSecret) throw new BinanceError('API Key/Secret required');
-            data.timestamp = Date.now();
-            data.recvWindow = this.recvWindow;
+            requestData.timestamp = Date.now();
+            requestData.recvWindow = this.recvWindow;
             
-            queryString = Object.entries(data)
-                .map(([key, val]) => `${key}=${encodeURIComponent(val)}`)
-                .join('&');
+            queryString = this._buildQueryString(requestData);
             
             const signature = this._generateSignature(queryString);
             queryString += `&signature=${signature}`;
         } else {
-            queryString = Object.entries(data)
-                .map(([key, val]) => `${key}=${encodeURIComponent(val)}`)
-                .join('&');
+            queryString = this._buildQueryString(requestData);
         }
 
         const fullUrl = queryString ? `${url}?${queryString}` : url;
@@ -336,6 +347,27 @@ class BinanceFuturesClient extends EventEmitter {
         return this._request('GET', '/fapi/v1/adlQuantile', params, false);
     }
 
+    async getOpenInterest(pair) {
+        const symbol = this.normalizeSymbol(pair);
+        return this._request('GET', '/fapi/v1/openInterest', { symbol }, true);
+    }
+
+    async getFundingInfo() {
+        return this._request('GET', '/fapi/v1/fundingInfo', {}, true);
+    }
+
+    async getTickerPriceV2(pair) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = symbol ? { symbol } : {};
+        return this._request('GET', '/fapi/v2/ticker/price', params, true);
+    }
+
+    async getBookTickerV2(pair) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = symbol ? { symbol } : {};
+        return this._request('GET', '/fapi/v2/ticker/bookTicker', params, true);
+    }
+
     async getBlvtInfo(tokenName) {
         const params = tokenName ? { tokenName } : {};
         return this._request('GET', '/fapi/v1/lvtKlines', params, true);
@@ -392,17 +424,42 @@ class BinanceFuturesClient extends EventEmitter {
         return this._request('GET', '/fapi/v2/positionRisk', params, false);
     }
 
+    async getAccountV3() { return this._request('GET', '/fapi/v3/account', {}, false); }
+
+    async getBalanceV3() { return this._request('GET', '/fapi/v3/balance', {}, false); }
+
+    async getPositionRiskV3(pair) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = symbol ? { symbol } : {};
+        return this._request('GET', '/fapi/v3/positionRisk', params, false);
+    }
+
     async setLeverage(pair, leverage) {
         const symbol = this.normalizeSymbol(pair);
         return this._request('POST', '/fapi/v1/leverage', { symbol, leverage }, false);
     }
 
-    async createOrder(params) {
-        if (params.pair) {
-            params.symbol = this.normalizeSymbol(params.pair);
-            delete params.pair;
+    _normalizeParamsWithPair(params = {}) {
+        const normalized = { ...params };
+        if (normalized.pair) {
+            normalized.symbol = this.normalizeSymbol(normalized.pair);
+            delete normalized.pair;
+        } else if (normalized.symbol) {
+            normalized.symbol = this.normalizeSymbol(normalized.symbol);
         }
-        return this._request('POST', '/fapi/v1/order', params, false);
+        return normalized;
+    }
+
+    _normalizeOrderParams(params = {}) {
+        return this._normalizeParamsWithPair(params);
+    }
+
+    async createOrder(params) {
+        return this._request('POST', '/fapi/v1/order', this._normalizeOrderParams(params), false);
+    }
+
+    async createTestOrder(params) {
+        return this._request('POST', '/fapi/v1/order/test', this._normalizeOrderParams(params), false);
     }
 
     async getOrder(pair, orderId, origClientOrderId) {
@@ -419,6 +476,12 @@ class BinanceFuturesClient extends EventEmitter {
         if (orderId) params.orderId = orderId;
         if (origClientOrderId) params.origClientOrderId = origClientOrderId;
         return this._request('DELETE', '/fapi/v1/order', params, false);
+    }
+
+    async getCurrentOrder(pair, orderId, origClientOrderId) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = { symbol, orderId, origClientOrderId };
+        return this._request('GET', '/fapi/v1/openOrder', params, false);
     }
 
     async getOpenOrders(pair) {
@@ -439,11 +502,38 @@ class BinanceFuturesClient extends EventEmitter {
     }
 
     async modifyOrder(params) {
-        if (params.pair) {
-            params.symbol = this.normalizeSymbol(params.pair);
-            delete params.pair;
-        }
-        return this._request('PUT', '/fapi/v1/order', params, false);
+        return this._request('PUT', '/fapi/v1/order', this._normalizeOrderParams(params), false);
+    }
+
+    async createAlgoOrder(params) {
+        return this._request('POST', '/fapi/v1/algoOrder', this._normalizeOrderParams(params), false);
+    }
+
+    async cancelAlgoOrder(pair, algoId, clientAlgoId) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = { symbol, algoId, clientAlgoId };
+        return this._request('DELETE', '/fapi/v1/algoOrder', params, false);
+    }
+
+    async cancelAllOpenAlgoOrders(pair) {
+        const symbol = this.normalizeSymbol(pair);
+        return this._request('DELETE', '/fapi/v1/algoOpenOrders', { symbol }, false);
+    }
+
+    async getAlgoOrder(pair, algoId, clientAlgoId) {
+        const symbol = this.normalizeSymbol(pair);
+        return this._request('GET', '/fapi/v1/algoOrder', { symbol, algoId, clientAlgoId }, false);
+    }
+
+    async getOpenAlgoOrders(pair) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = symbol ? { symbol } : {};
+        return this._request('GET', '/fapi/v1/openAlgoOrders', params, false);
+    }
+
+    async getAllAlgoOrders(pair, options = {}) {
+        const symbol = this.normalizeSymbol(pair);
+        return this._request('GET', '/fapi/v1/allAlgoOrders', { symbol, ...options }, false);
     }
 
     async createBatchOrders(batchOrders) {
@@ -456,6 +546,11 @@ class BinanceFuturesClient extends EventEmitter {
             return order;
         });
         return this._request('POST', '/fapi/v1/batchOrders', { batchOrders: JSON.stringify(orders) }, false);
+    }
+
+    async getOrderModifyHistory(pair, options = {}) {
+        const symbol = this.normalizeSymbol(pair);
+        return this._request('GET', '/fapi/v1/orderAmendment', { symbol, ...options }, false);
     }
 
     async modifyBatchOrders(batchOrders) {
@@ -618,10 +713,18 @@ class BinanceFuturesClient extends EventEmitter {
     subscribeMarketStream(stream, pair, type) {
         const url = `${this.wsBase}/${stream}`;
         const ws = new WebSocket(url);
+        this.wsConnections.add(ws);
+        ws.on('close', () => this.wsConnections.delete(ws));
 
         ws.on('open', () => this._log(`WS Connected: ${stream}`));
         ws.on('message', (msg) => {
-            const data = JSON.parse(msg.toString());
+            let data;
+            try {
+                data = JSON.parse(msg.toString());
+            } catch (error) {
+                this.emit('ws:error', new BinanceNetworkError('Invalid WebSocket JSON payload', error));
+                return;
+            }
             let normalized = data;
             let event = type;
 
@@ -747,6 +850,91 @@ class BinanceFuturesClient extends EventEmitter {
         return ws;
     }
 
+    subscribeCombinedMarketStreams(streams = []) {
+        const normalizedStreams = streams.map(stream => stream.toLowerCase()).join('/');
+        const base = this.wsBase.replace(/\/ws$/, '/stream');
+        const url = `${base}?streams=${normalizedStreams}`;
+        const ws = new WebSocket(url);
+        this.wsConnections.add(ws);
+        ws.on('close', () => this.wsConnections.delete(ws));
+        ws.on('message', (msg) => {
+            let packet;
+            try {
+                packet = JSON.parse(msg.toString());
+            } catch (error) {
+                this.emit('ws:error', new BinanceNetworkError('Invalid combined WebSocket JSON payload', error));
+                return;
+            }
+            this.emit(packet.stream, packet.data);
+            this.emit('ws:combined', packet);
+        });
+        return ws;
+    }
+
+    async wsApiRequest(method, params = {}) {
+        if (!this.apiKey || !this.apiSecret) throw new BinanceError('API Key/Secret required');
+        const { id: requestId, ...methodParams } = params;
+        const requestParams = { ...methodParams, apiKey: this.apiKey, timestamp: Date.now(), recvWindow: this.recvWindow };
+        const queryString = this._buildQueryString(requestParams);
+        requestParams.signature = this._generateSignature(queryString);
+        return new Promise((resolve, reject) => {
+            const ws = new WebSocket(this.wsApiBase);
+            const id = requestId || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+            const timeout = setTimeout(() => {
+                ws.close();
+                reject(new BinanceNetworkError(`WebSocket API request timed out: ${method}`));
+            }, 15000);
+            ws.on('open', () => ws.send(JSON.stringify({ id, method, params: requestParams })));
+            ws.on('message', (msg) => {
+                clearTimeout(timeout);
+                ws.close();
+                let data;
+                try {
+                    data = JSON.parse(msg.toString());
+                } catch (error) {
+                    reject(new BinanceNetworkError('Invalid WebSocket API JSON payload', error));
+                    return;
+                }
+                if (data.status && data.status >= 400) {
+                    reject(new BinanceAPIError(data.error?.msg || 'WebSocket API error', data.status, data.error, 'WS', this.wsApiBase));
+                } else {
+                    resolve(data);
+                }
+            });
+            ws.on('error', (err) => {
+                clearTimeout(timeout);
+                reject(new BinanceNetworkError(err.message, err));
+            });
+        });
+    }
+
+    wsApiCreateOrder(params) {
+        return this.wsApiRequest('order.place', this._normalizeOrderParams(params));
+    }
+
+    wsApiCancelOrder(params) {
+        return this.wsApiRequest('order.cancel', this._normalizeOrderParams(params));
+    }
+
+    wsApiModifyOrder(params) {
+        return this.wsApiRequest('order.modify', this._normalizeOrderParams(params));
+    }
+
+    wsApiCreateAlgoOrder(params) {
+        return this.wsApiRequest('algoOrder.place', this._normalizeOrderParams(params));
+    }
+
+    wsApiCancelAlgoOrder(params) {
+        return this.wsApiRequest('algoOrder.cancel', this._normalizeOrderParams(params));
+    }
+
+    closeAllWebSockets() {
+        for (const ws of this.wsConnections) ws.close();
+        if (this.ws) this.ws.close();
+        if (this.listenKeyInterval) clearInterval(this.listenKeyInterval);
+        this.wsConnections.clear();
+    }
+
     wsSubscribeCandles(pair, interval = '1m') {
         const symbol = this.normalizeSymbol(pair).toLowerCase();
         return this.subscribeMarketStream(`${symbol}@kline_${interval}`, pair, 'candlestick');
@@ -761,6 +949,9 @@ class BinanceFuturesClient extends EventEmitter {
         const symbol = this.normalizeSymbol(pair).toLowerCase();
         return this.subscribeMarketStream(`${symbol}@aggTrade`, pair, 'trade');
     }
+
+    subscribeAllMarketTickers() { return this.wsSubscribeAllMarketTickers(); }
+    subscribeAllBookTickers() { return this.wsSubscribeAllBookTickers(); }
 
     wsSubscribeAllMarketTickers() {
         return this.subscribeMarketStream('!ticker@arr', null, 'allMarketTickers');
@@ -833,6 +1024,16 @@ class BinanceFuturesClient extends EventEmitter {
         return this.subscribeMarketStream('!miniTicker@arr', null, 'allMiniTickers');
     }
 
+    async closeUserStream() {
+        if (!this.listenKey) return {};
+        const listenKey = this.listenKey;
+        if (this.listenKeyInterval) clearInterval(this.listenKeyInterval);
+        if (this.ws) this.ws.close();
+        this.listenKey = null;
+        this.listenKeyInterval = null;
+        return this._request('DELETE', '/fapi/v1/listenKey', { listenKey }, true);
+    }
+
     async subscribeUserStream() {
         if (!this.listenKey) {
             const res = await this._request('POST', '/fapi/v1/listenKey', {}, true);
@@ -845,9 +1046,17 @@ class BinanceFuturesClient extends EventEmitter {
 
         const url = `${this.wsUserBase}/${this.listenKey}`;
         this.ws = new WebSocket(url);
+        this.wsConnections.add(this.ws);
+        this.ws.on('close', () => this.wsConnections.delete(this.ws));
 
         this.ws.on('message', (msg) => {
-            const data = JSON.parse(msg.toString());
+            let data;
+            try {
+                data = JSON.parse(msg.toString());
+            } catch (error) {
+                this.emit('ws:error', new BinanceNetworkError('Invalid user-data WebSocket JSON payload', error));
+                return;
+            }
             const { event, data: normalized } = this._normalizeUserData(data);
             this.emit(`ws:${event}`, normalized);
             this.emit('userData', data);
