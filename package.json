@@ -5,7 +5,7 @@
   "main": "binance-futures-client.js",
   "types": "binance-futures-client.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node tests/unit/client_unit_test.js"
   },
   "keywords": [
     "binance",

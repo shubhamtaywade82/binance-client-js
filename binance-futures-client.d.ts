@@ -5,6 +5,7 @@ export interface BinanceFuturesClientOptions {
     apiKey?: string;
     apiSecret?: string;
     testnet?: boolean;
+    /** Use Binance demo endpoints. Explicitly separate from testnet. */
     demo?: boolean;
     apiBase?: string;
     wsBase?: string;
@@ -67,8 +68,12 @@ export class BinanceFuturesClient extends EventEmitter {
     getBalance(): Promise<any>;
     getAccount(): Promise<any>;
     getPositionRisk(symbol?: string): Promise<any>;
+    getAccountV3(): Promise<any>;
+    getBalanceV3(): Promise<any>;
+    getPositionRiskV3(symbol?: string): Promise<any>;
     setLeverage(symbol: string, leverage: number): Promise<any>;
     createOrder(params: any): Promise<any>;
+    createTestOrder(params: any): Promise<any>;
     modifyOrder(params: any): Promise<any>;
     createAlgoOrder(params: any): Promise<any>;
     cancelAlgoOrder(symbol: string, algoId?: number, clientAlgoId?: string): Promise<any>;
@@ -77,8 +82,10 @@ export class BinanceFuturesClient extends EventEmitter {
     getOpenAlgoOrders(symbol?: string): Promise<any>;
     getAllAlgoOrders(symbol: string, options?: any): Promise<any>;
     createBatchOrders(batchOrders: any[]): Promise<any>;
+    getOrderModifyHistory(symbol: string, options?: any): Promise<any>;
     modifyBatchOrders(batchOrders: any[]): Promise<any>;
     getOrder(symbol: string, orderId?: number, origClientOrderId?: string): Promise<any>;
+    getCurrentOrder(symbol: string, orderId?: number, origClientOrderId?: string): Promise<any>;
     cancelOrder(symbol: string, orderId?: number, origClientOrderId?: string): Promise<any>;
     cancelBatchOrders(symbol: string, orderIdList?: number[], origClientOrderIdList?: string[]): Promise<any>;
     getOpenOrders(symbol?: string): Promise<any>;
@@ -111,6 +118,7 @@ export class BinanceFuturesClient extends EventEmitter {
     wsApiCreateAlgoOrder(params: any): Promise<any>;
     wsApiCancelAlgoOrder(params: any): Promise<any>;
     closeAllWebSockets(): void;
+    closeUserStream(): Promise<any>;
     subscribeAllMarketTickers(): WebSocket;
     subscribeAllBookTickers(): WebSocket;
     wsSubscribeCandles(pair: string, interval?: string): WebSocket;

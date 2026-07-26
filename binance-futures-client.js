@@ -55,17 +55,21 @@ class BinanceFuturesClient extends EventEmitter {
         this.apiKey = options.apiKey || '';
         this.apiSecret = options.apiSecret || '';
         this.testnet = options.testnet || false;
-        this.demo = options.demo !== undefined ? options.demo : this.testnet;
+        this.demo = options.demo || false;
         this.debug = options.debug || false;
         this.recvWindow = options.recvWindow || 5000;
 
         this.apiBase = options.apiBase || (this.demo
             ? 'https://demo-fapi.binance.com'
-            : 'https://fapi.binance.com');
+            : this.testnet
+                ? 'https://testnet.binancefuture.com'
+                : 'https://fapi.binance.com');
 
         this.wsBase = options.wsBase || (this.demo
             ? 'wss://demo-fstream.binance.com/ws'
-            : 'wss://fstream.binance.com/ws');
+            : this.testnet
+                ? 'wss://fstream.binancefuture.com/ws'
+                : 'wss://fstream.binance.com/ws');
 
         this.wsUserBase = options.wsUserBase || this.wsBase;
         this.wsApiBase = options.wsApiBase || (this.demo
@@ -150,6 +154,7 @@ class BinanceFuturesClient extends EventEmitter {
      * Internal: Generic request handler with auto-signing.
      */
     async _request(method, path, data = {}, isPublic = false) {
+        const requestData = { ...data };
         const url = `${this.apiBase}${path}`;
         const headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -163,15 +168,15 @@ class BinanceFuturesClient extends EventEmitter {
         let queryString = '';
         if (!isPublic) {
             if (!this.apiKey || !this.apiSecret) throw new BinanceError('API Key/Secret required');
-            data.timestamp = Date.now();
-            data.recvWindow = this.recvWindow;
+            requestData.timestamp = Date.now();
+            requestData.recvWindow = this.recvWindow;
             
-            queryString = this._buildQueryString(data);
+            queryString = this._buildQueryString(requestData);
             
             const signature = this._generateSignature(queryString);
             queryString += `&signature=${signature}`;
         } else {
-            queryString = this._buildQueryString(data);
+            queryString = this._buildQueryString(requestData);
         }
 
         const fullUrl = queryString ? `${url}?${queryString}` : url;
@@ -419,12 +424,22 @@ class BinanceFuturesClient extends EventEmitter {
         return this._request('GET', '/fapi/v2/positionRisk', params, false);
     }
 
+    async getAccountV3() { return this._request('GET', '/fapi/v3/account', {}, false); }
+
+    async getBalanceV3() { return this._request('GET', '/fapi/v3/balance', {}, false); }
+
+    async getPositionRiskV3(pair) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = symbol ? { symbol } : {};
+        return this._request('GET', '/fapi/v3/positionRisk', params, false);
+    }
+
     async setLeverage(pair, leverage) {
         const symbol = this.normalizeSymbol(pair);
         return this._request('POST', '/fapi/v1/leverage', { symbol, leverage }, false);
     }
 
-    _normalizeOrderParams(params = {}) {
+    _normalizeParamsWithPair(params = {}) {
         const normalized = { ...params };
         if (normalized.pair) {
             normalized.symbol = this.normalizeSymbol(normalized.pair);
@@ -435,8 +450,16 @@ class BinanceFuturesClient extends EventEmitter {
         return normalized;
     }
 
+    _normalizeOrderParams(params = {}) {
+        return this._normalizeParamsWithPair(params);
+    }
+
     async createOrder(params) {
         return this._request('POST', '/fapi/v1/order', this._normalizeOrderParams(params), false);
+    }
+
+    async createTestOrder(params) {
+        return this._request('POST', '/fapi/v1/order/test', this._normalizeOrderParams(params), false);
     }
 
     async getOrder(pair, orderId, origClientOrderId) {
@@ -453,6 +476,12 @@ class BinanceFuturesClient extends EventEmitter {
         if (orderId) params.orderId = orderId;
         if (origClientOrderId) params.origClientOrderId = origClientOrderId;
         return this._request('DELETE', '/fapi/v1/order', params, false);
+    }
+
+    async getCurrentOrder(pair, orderId, origClientOrderId) {
+        const symbol = this.normalizeSymbol(pair);
+        const params = { symbol, orderId, origClientOrderId };
+        return this._request('GET', '/fapi/v1/openOrder', params, false);
     }
 
     async getOpenOrders(pair) {
@@ -517,6 +546,11 @@ class BinanceFuturesClient extends EventEmitter {
             return order;
         });
         return this._request('POST', '/fapi/v1/batchOrders', { batchOrders: JSON.stringify(orders) }, false);
+    }
+
+    async getOrderModifyHistory(pair, options = {}) {
+        const symbol = this.normalizeSymbol(pair);
+        return this._request('GET', '/fapi/v1/orderAmendment', { symbol, ...options }, false);
     }
 
     async modifyBatchOrders(batchOrders) {
@@ -684,7 +718,13 @@ class BinanceFuturesClient extends EventEmitter {
 
         ws.on('open', () => this._log(`WS Connected: ${stream}`));
         ws.on('message', (msg) => {
-            const data = JSON.parse(msg.toString());
+            let data;
+            try {
+                data = JSON.parse(msg.toString());
+            } catch (error) {
+                this.emit('ws:error', new BinanceNetworkError('Invalid WebSocket JSON payload', error));
+                return;
+            }
             let normalized = data;
             let event = type;
 
@@ -818,7 +858,13 @@ class BinanceFuturesClient extends EventEmitter {
         this.wsConnections.add(ws);
         ws.on('close', () => this.wsConnections.delete(ws));
         ws.on('message', (msg) => {
-            const packet = JSON.parse(msg.toString());
+            let packet;
+            try {
+                packet = JSON.parse(msg.toString());
+            } catch (error) {
+                this.emit('ws:error', new BinanceNetworkError('Invalid combined WebSocket JSON payload', error));
+                return;
+            }
             this.emit(packet.stream, packet.data);
             this.emit('ws:combined', packet);
         });
@@ -842,7 +888,13 @@ class BinanceFuturesClient extends EventEmitter {
             ws.on('message', (msg) => {
                 clearTimeout(timeout);
                 ws.close();
-                const data = JSON.parse(msg.toString());
+                let data;
+                try {
+                    data = JSON.parse(msg.toString());
+                } catch (error) {
+                    reject(new BinanceNetworkError('Invalid WebSocket API JSON payload', error));
+                    return;
+                }
                 if (data.status && data.status >= 400) {
                     reject(new BinanceAPIError(data.error?.msg || 'WebSocket API error', data.status, data.error, 'WS', this.wsApiBase));
                 } else {
@@ -972,6 +1024,16 @@ class BinanceFuturesClient extends EventEmitter {
         return this.subscribeMarketStream('!miniTicker@arr', null, 'allMiniTickers');
     }
 
+    async closeUserStream() {
+        if (!this.listenKey) return {};
+        const listenKey = this.listenKey;
+        if (this.listenKeyInterval) clearInterval(this.listenKeyInterval);
+        if (this.ws) this.ws.close();
+        this.listenKey = null;
+        this.listenKeyInterval = null;
+        return this._request('DELETE', '/fapi/v1/listenKey', { listenKey }, true);
+    }
+
     async subscribeUserStream() {
         if (!this.listenKey) {
             const res = await this._request('POST', '/fapi/v1/listenKey', {}, true);
@@ -988,7 +1050,13 @@ class BinanceFuturesClient extends EventEmitter {
         this.ws.on('close', () => this.wsConnections.delete(this.ws));
 
         this.ws.on('message', (msg) => {
-            const data = JSON.parse(msg.toString());
+            let data;
+            try {
+                data = JSON.parse(msg.toString());
+            } catch (error) {
+                this.emit('ws:error', new BinanceNetworkError('Invalid user-data WebSocket JSON payload', error));
+                return;
+            }
             const { event, data: normalized } = this._normalizeUserData(data);
             this.emit(`ws:${event}`, normalized);
             this.emit('userData', data);

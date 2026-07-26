@@ -317,11 +317,14 @@ Accessible via the `BinanceFuturesClient` class:
 The client tracks the current Binance USDⓈ-M Futures split between REST, market-stream WebSockets, and the authenticated WebSocket API:
 
 - Production REST: `https://fapi.binance.com`
-- Demo/testnet REST: `https://demo-fapi.binance.com`
+- Testnet REST: `https://testnet.binancefuture.com`
+- Demo REST: `https://demo-fapi.binance.com`
 - Production market streams: `wss://fstream.binance.com/ws`
-- Demo/testnet market streams: `wss://demo-fstream.binance.com/ws`
+- Testnet market streams: `wss://fstream.binancefuture.com/ws`
+- Demo market streams: `wss://demo-fstream.binance.com/ws`
 - Production WebSocket API: `wss://ws-fapi.binance.com/ws-fapi/v1`
-- Demo/testnet WebSocket API: `wss://demo-fapi.binance.com/ws-fapi/v1`
+- Demo WebSocket API: `wss://demo-fapi.binance.com/ws-fapi/v1`
+- Production WebSocket API remains the default signed WS-API endpoint unless `demo` or `wsApiBase` is set.
 
 ### Constructor URL overrides
 
@@ -329,9 +332,9 @@ The client tracks the current Binance USDⓈ-M Futures split between REST, marke
 const client = new BinanceFuturesClient({
   testnet: true,
   // Optional explicit overrides for private gateways, proxies, or MCP adapters.
-  apiBase: 'https://demo-fapi.binance.com',
-  wsBase: 'wss://demo-fstream.binance.com/ws',
-  wsApiBase: 'wss://demo-fapi.binance.com/ws-fapi/v1'
+  apiBase: 'https://testnet.binancefuture.com',
+  wsBase: 'wss://fstream.binancefuture.com/ws',
+  wsApiBase: 'wss://ws-fapi.binance.com/ws-fapi/v1'
 });
 ```
 
@@ -341,6 +344,10 @@ const client = new BinanceFuturesClient({
 - `getFundingInfo()` calls `GET /fapi/v1/fundingInfo`.
 - `getTickerPriceV2(symbol?)` calls `GET /fapi/v2/ticker/price`.
 - `getBookTickerV2(symbol?)` calls `GET /fapi/v2/ticker/bookTicker`.
+- `getAccountV3()`, `getBalanceV3()`, and `getPositionRiskV3(symbol?)` expose the latest account/position USER_DATA endpoints.
+- `createTestOrder(params)` validates order params without matching an order.
+- `getCurrentOrder(symbol, orderId?, origClientOrderId?)` queries a current open order.
+- `getOrderModifyHistory(symbol, options?)` returns order amendment history.
 
 ### Algo conditional orders
 
@@ -381,3 +388,8 @@ Available helpers:
 
 - `subscribeCombinedMarketStreams(['btcusdt@aggTrade', 'btcusdt@markPrice'])` opens a combined stream and emits each stream name plus `ws:combined`.
 - `closeAllWebSockets()` closes market, user-data, and combined sockets managed by the client.
+- `closeUserStream()` closes the active user-data socket, clears keepalive timers, and deletes the listen key.
+
+### MCP adapter note
+
+No Binance-specific MCP server is bundled with this repository. The client accepts endpoint overrides so an MCP gateway, local proxy, or trading-service adapter can route REST, market WebSocket, user-data WebSocket, or signed WebSocket API traffic without changing trading code.

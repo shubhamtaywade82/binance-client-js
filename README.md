@@ -28,7 +28,7 @@ const { BinanceFuturesClient } = require('binance-client-js');
 const client = new BinanceFuturesClient({
     apiKey: 'YOUR_API_KEY',
     apiSecret: 'YOUR_API_SECRET',
-    testnet: true, // Uses Binance demo USDⓈ-M Futures endpoints
+    testnet: true, // Uses Binance USDⓈ-M Futures testnet endpoints
     debug: true    // See the URLs and events in console
 });
 
@@ -68,9 +68,9 @@ run();
 
 ### Current USDⓈ-M Futures coverage
 
-This client now exposes production and Binance demo/testnet URL defaults for REST, market-stream WebSockets, and the signed WebSocket API. You can override `apiBase`, `wsBase`, `wsUserBase`, or `wsApiBase` for private gateways or MCP adapters.
+This client now exposes production, Binance testnet, and Binance demo URL defaults for REST, market-stream WebSockets, and the signed WebSocket API. You can override `apiBase`, `wsBase`, `wsUserBase`, or `wsApiBase` for private gateways, proxies, or MCP adapters.
 
-Recent USDⓈ-M additions include open interest, funding info, v2 ticker/book ticker helpers, Algo Service conditional-order endpoints, signed WebSocket API trading (`order.place`, `order.cancel`, `order.modify`, `algoOrder.place`, `algoOrder.cancel`), combined market streams, and `closeAllWebSockets()` cleanup.
+Recent USDⓈ-M additions include open interest, funding info, v2 ticker/book ticker helpers, v3 account/position helpers, test/current-order and order-modify-history helpers, Algo Service conditional-order endpoints, signed WebSocket API trading (`order.place`, `order.cancel`, `order.modify`, `algoOrder.place`, `algoOrder.cancel`), combined market streams, and `closeAllWebSockets()`/`closeUserStream()` cleanup.
 
 ## 📖 Documentation
 
