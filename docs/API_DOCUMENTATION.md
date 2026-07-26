@@ -392,4 +392,4 @@ Available helpers:
 
 ### MCP server and adapter note
 
-This repository bundles a lightweight read-only MCP server in `mcp-server.js` for USDⓈ-M Futures ping, server time, ticker price, mark price, and order book tools. The client still accepts endpoint overrides so an MCP gateway, local proxy, or trading-service adapter can route REST, market WebSocket, user-data WebSocket, or signed WebSocket API traffic without changing trading code. See `docs/MCP.md` for setup details.
+This repository bundles a structured MCP server in `mcp-server/` for USDⓈ-M Futures market data, account, trading, position, paper-trading, resource, and prompt workflows. The client still accepts endpoint overrides so an MCP gateway, local proxy, or trading-service adapter can route REST, market WebSocket, user-data WebSocket, or signed WebSocket API traffic without changing trading code. See `docs/MCP-SERVER.md` for setup details.

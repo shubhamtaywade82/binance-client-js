@@ -1,15 +1,17 @@
 {
   "name": "binance-client",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "description": "Binance USDⓈ-M Futures JavaScript Library",
   "main": "binance-futures-client.js",
   "types": "binance-futures-client.d.ts",
   "scripts": {
     "test": "npm run test:unit",
-    "test:unit": "node tests/unit/client_unit_test.js && node tests/unit/mcp_server_unit_test.js",
-    "check:syntax": "node --check binance-futures-client.js && node --check mcp-server.js && node --check tests/unit/client_unit_test.js && node --check tests/unit/mcp_server_unit_test.js",
+    "test:unit": "node tests/unit/client_unit_test.js && node tests/mcp-server.test.js",
+    "check:syntax": "node --check binance-futures-client.js && node --check mcp-server.js && find mcp-server -name \"*.js\" -print0 | xargs -0 -n1 node --check && node --check tests/unit/client_unit_test.js && node --check tests/mcp-server.test.js",
     "verify:exports": "node -e \"const pkg = require('./binance-futures-client'); const required = ['BinanceFuturesClient','BinanceError','BinanceAPIError','BinanceNetworkError']; for (const key of required) { if (!pkg[key]) throw new Error('Missing export: '+key); } console.log('exports ok')\"",
-    "verify": "npm run check:syntax && npm run test:unit && npm run verify:exports && npm pack --dry-run"
+    "verify": "npm run check:syntax && npm run test:unit && npm run verify:exports && npm pack --dry-run",
+    "mcp": "node mcp-server/index.js",
+    "mcp:http": "node mcp-server/index.js --http"
   },
   "keywords": [
     "binance",
@@ -22,10 +24,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "axios": "^1.18.1",
     "dotenv": "^16.6.1",
     "technicalindicators": "^3.1.0",
-    "ws": "^8.21.0"
+    "ws": "^8.21.0",
+    "zod": "^4.4.3"
   },
   "directories": {
     "doc": "docs",
@@ -40,6 +44,6 @@
   },
   "homepage": "https://github.com/shubhamtaywade82/binance-client-js#readme",
   "bin": {
-    "binance-client-mcp": "./mcp-server.js"
+    "binance-client-mcp": "./mcp-server/index.js"
   }
 }
