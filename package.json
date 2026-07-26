@@ -5,7 +5,11 @@
   "main": "binance-futures-client.js",
   "types": "binance-futures-client.d.ts",
   "scripts": {
-    "test": "node tests/unit/client_unit_test.js"
+    "test": "npm run test:unit",
+    "test:unit": "node tests/unit/client_unit_test.js",
+    "check:syntax": "node --check binance-futures-client.js && node --check tests/unit/client_unit_test.js",
+    "verify:exports": "node -e \"const pkg = require('./binance-futures-client'); const required = ['BinanceFuturesClient','BinanceError','BinanceAPIError','BinanceNetworkError']; for (const key of required) { if (!pkg[key]) throw new Error('Missing export: '+key); } console.log('exports ok')\"",
+    "verify": "npm run check:syntax && npm run test:unit && npm run verify:exports && npm pack --dry-run"
   },
   "keywords": [
     "binance",
