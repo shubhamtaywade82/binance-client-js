@@ -1,6 +1,9 @@
 name: Release
 
 on:
+  push:
+    tags:
+      - 'v*.*.*'
   release:
     types:
       - published
@@ -14,9 +17,19 @@ on:
         options:
           - 'true'
           - 'false'
+      npm_tag:
+        description: npm dist-tag to publish under
+        required: true
+        default: latest
+        type: string
 
 permissions:
   contents: read
+  id-token: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -36,17 +49,28 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
+      - name: Ensure Git tag matches package version
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          PACKAGE_VERSION="v$(node -p "require('./package.json').version")"
+          if [ "${GITHUB_REF_NAME}" != "${PACKAGE_VERSION}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match package version ${PACKAGE_VERSION}" >&2
+            exit 1
+          fi
+
       - name: Run full verification
         run: npm run verify
 
       - name: Publish dry run
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run == 'true'
-        run: npm publish --dry-run
+        run: npm publish --dry-run --tag "${NPM_TAG}"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TAG: ${{ inputs.npm_tag }}
 
       - name: Publish to npm
-        if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.dry_run == 'false')
-        run: npm publish
+        if: github.event_name == 'push' || github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.dry_run == 'false')
+        run: npm publish --provenance --tag "${NPM_TAG}"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TAG: ${{ inputs.npm_tag || 'latest' }}

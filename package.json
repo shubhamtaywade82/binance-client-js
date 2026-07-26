@@ -6,8 +6,8 @@
   "types": "binance-futures-client.d.ts",
   "scripts": {
     "test": "npm run test:unit",
-    "test:unit": "node tests/unit/client_unit_test.js",
-    "check:syntax": "node --check binance-futures-client.js && node --check tests/unit/client_unit_test.js",
+    "test:unit": "node tests/unit/client_unit_test.js && node tests/unit/mcp_server_unit_test.js",
+    "check:syntax": "node --check binance-futures-client.js && node --check mcp-server.js && node --check tests/unit/client_unit_test.js && node --check tests/unit/mcp_server_unit_test.js",
     "verify:exports": "node -e \"const pkg = require('./binance-futures-client'); const required = ['BinanceFuturesClient','BinanceError','BinanceAPIError','BinanceNetworkError']; for (const key of required) { if (!pkg[key]) throw new Error('Missing export: '+key); } console.log('exports ok')\"",
     "verify": "npm run check:syntax && npm run test:unit && npm run verify:exports && npm pack --dry-run"
   },
@@ -22,7 +22,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^1.17.0",
+    "axios": "^1.18.1",
     "dotenv": "^16.6.1",
     "technicalindicators": "^3.1.0",
     "ws": "^8.21.0"
@@ -38,5 +38,8 @@
   "bugs": {
     "url": "https://github.com/shubhamtaywade82/binance-client-js/issues"
   },
-  "homepage": "https://github.com/shubhamtaywade82/binance-client-js#readme"
+  "homepage": "https://github.com/shubhamtaywade82/binance-client-js#readme",
+  "bin": {
+    "binance-client-mcp": "./mcp-server.js"
+  }
 }

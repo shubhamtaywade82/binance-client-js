@@ -390,6 +390,6 @@ Available helpers:
 - `closeAllWebSockets()` closes market, user-data, and combined sockets managed by the client.
 - `closeUserStream()` closes the active user-data socket, clears keepalive timers, and deletes the listen key.
 
-### MCP adapter note
+### MCP server and adapter note
 
-No Binance-specific MCP server is bundled with this repository. The client accepts endpoint overrides so an MCP gateway, local proxy, or trading-service adapter can route REST, market WebSocket, user-data WebSocket, or signed WebSocket API traffic without changing trading code.
+This repository bundles a lightweight read-only MCP server in `mcp-server.js` for USDⓈ-M Futures ping, server time, ticker price, mark price, and order book tools. The client still accepts endpoint overrides so an MCP gateway, local proxy, or trading-service adapter can route REST, market WebSocket, user-data WebSocket, or signed WebSocket API traffic without changing trading code. See `docs/MCP.md` for setup details.
