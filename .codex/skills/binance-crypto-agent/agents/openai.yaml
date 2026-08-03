@@ -1,0 +1,4 @@
+interface:
+  display_name: "Binance Crypto Agent"
+  short_description: "Work with Binance USD-M futures workflows."
+  default_prompt: "Use the Binance Crypto Agent skill to inspect futures market data workflows, configure safe testnet/demo clients, and integrate the bundled MCP server."

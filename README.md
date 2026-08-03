@@ -79,7 +79,7 @@ run();
 
 ### Current USDⓈ-M Futures coverage
 
-This client now exposes production, Binance testnet, and Binance demo URL defaults for REST, market-stream WebSockets, and the signed WebSocket API. You can override `apiBase`, `wsBase`, `wsUserBase`, or `wsApiBase` for private gateways, proxies, or MCP adapters.
+This client now exposes production, Binance testnet, and Binance demo URL defaults for REST, market-stream WebSockets, and the signed WebSocket API. You can override `apiBase`, `wsBase`, `wsUserBase`, or `wsApiBase` for private gateways, proxies, or MCP adapters. The package also includes a full MCP server with market-data, account, trading, position, paper-trading, resource, and prompt support; see `docs/MCP-SERVER.md`.
 
 Recent USDⓈ-M additions include open interest, funding info, v2 ticker/book ticker helpers, v3 account/position helpers, test/current-order and order-modify-history helpers, Algo Service conditional-order endpoints, signed WebSocket API trading (`order.place`, `order.cancel`, `order.modify`, `algoOrder.place`, `algoOrder.cancel`), combined market streams, and `closeAllWebSockets()`/`closeUserStream()` cleanup.
 
