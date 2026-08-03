@@ -1,5 +1,11 @@
 # Binance USDⓈ-M Futures JavaScript Library
 
+[![CI/CD Pipeline](https://github.com/shubhamtaywade82/binance-client-js/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/shubhamtaywade82/binance-client-js/actions/workflows/ci-cd.yml)
+[![Code Quality](https://github.com/shubhamtaywade82/binance-client-js/actions/workflows/code-quality.yml/badge.svg)](https://github.com/shubhamtaywade82/binance-client-js/actions/workflows/code-quality.yml)
+[![npm version](https://img.shields.io/npm/v/binance-client.svg)](https://www.npmjs.com/package/binance-client)
+[![npm downloads](https://img.shields.io/npm/dm/binance-client.svg)](https://www.npmjs.com/package/binance-client)
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
+
 A high-performance, feature-complete JavaScript client for the Binance USDⓈ-M Futures API (REST & WebSocket). 
 
 Designed with absolute parity to the `coindcx-client-js` architecture, providing a seamless transition for developers familiar with that ecosystem.
@@ -104,6 +110,40 @@ For a complete reference of all 80+ methods and every available WebSocket stream
 - `docs/`: Documentation
   - `API_DOCUMENTATION.md`: Complete API reference
   - `AI_AGENT_SKILLS_INTEGRATION.md`: Guide for integrating with AI agents
+- `.github/workflows/`: CI/CD pipelines
+  - `ci-cd.yml`: Main CI/CD pipeline with automated NPM publishing
+  - `npm-publish-manual.yml`: Manual trigger for version bumping and publishing
+  - `code-quality.yml`: Security audits, license checks, documentation validation
+  - `release-drafter.yml`: Automated release notes generation
+
+## 🚀 CI/CD and Publishing
+
+This repository includes comprehensive GitHub Actions workflows for automated testing, security auditing, and NPM publishing.
+
+### Automated Publishing Flow
+
+1. **Create a GitHub Release:**
+   - Go to **Releases** → **Draft a new release**
+   - Create a tag (e.g., `v1.0.1`)
+   - Publish the release
+   - CI/CD pipeline automatically runs tests and publishes to NPM
+
+2. **Manual Publishing:**
+   - Go to **Actions** tab
+   - Select **"NPM Publish (Manual Trigger)"**
+   - Choose version bump type (patch/minor/major)
+   - Select publish tag (latest/beta/alpha)
+   - Run workflow
+
+### Required Secrets
+
+Configure these in **Repository Settings** → **Secrets and variables** → **Actions**:
+
+| Secret | Description |
+|--------|-------------|
+| `NPM_TOKEN` | NPM automation token for publishing |
+
+See [GitHub Workflows Guide](.github/workflows/README_WORKFLOWS.md) for detailed documentation.
 
 ## 🛡 Security
 

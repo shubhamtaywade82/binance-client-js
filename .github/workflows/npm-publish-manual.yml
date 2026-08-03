@@ -1,0 +1,121 @@
+name: NPM Publish (Manual Trigger)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Version bump type (patch, minor, major)'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      publish_tag:
+        description: 'NPM tag (latest, beta, alpha)'
+        required: true
+        default: 'latest'
+        type: choice
+        options:
+          - latest
+          - beta
+          - alpha
+
+jobs:
+  prepare-and-publish:
+    name: Prepare and Publish to NPM
+    runs-on: ubuntu-latest
+    
+    environment:
+      name: npm-manual
+      url: https://www.npmjs.com/package/binance-client
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+      
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run tests before publishing
+        run: npm run verify
+      
+      - name: Bump version
+        id: bump_version
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "Current version: $CURRENT_VERSION"
+          
+          # Bump version using npm
+          npm version ${{ github.event.inputs.version_bump }} --no-git-tag-version
+          
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "New version: $NEW_VERSION"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          
+          # Commit version change
+          git add package.json
+          git commit -m "chore: bump version to $NEW_VERSION [skip ci]"
+          git push origin HEAD
+      
+      - name: Create Git tag
+        run: |
+          git tag -a "v${{ steps.bump_version.outputs.new_version }}" -m "Release v${{ steps.bump_version.outputs.new_version }}"
+          git push origin "v${{ steps.bump_version.outputs.new_version }}"
+      
+      - name: Configure npm for publishing
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+      
+      - name: Publish to NPM
+        run: npm publish --tag ${{ github.event.inputs.publish_tag }} --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.bump_version.outputs.new_version }}
+          name: Release v${{ steps.bump_version.outputs.new_version }}
+          body: |
+            ## Changes in v${{ steps.bump_version.outputs.new_version }}
+            
+            Automated release triggered by workflow dispatch.
+            
+            ### NPM Package
+            - Package: binance-client@${{ steps.bump_version.outputs.new_version }}
+            - Tag: ${{ github.event.inputs.publish_tag }}
+            - URL: https://www.npmjs.com/package/binance-client/v/${{ steps.bump_version.outputs.new_version }}
+            
+            ### Installation
+            ```bash
+            npm install binance-client@${{ github.event.inputs.publish_tag }}
+            ```
+          draft: false
+          prerelease: ${{ github.event.inputs.publish_tag != 'latest' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Success notification
+        if: success()
+        run: |
+          echo "✅ Successfully published binance-client@${{ steps.bump_version.outputs.new_version }} to NPM"
+          echo "📦 Package available at: https://www.npmjs.com/package/binance-client"
+          echo "🏷️  Tag: ${{ github.event.inputs.publish_tag }}"
+          echo "🔖 Git tag: v${{ steps.bump_version.outputs.new_version }}"

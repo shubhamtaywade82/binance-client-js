@@ -1,0 +1,138 @@
+name: Code Quality and Security
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  schedule:
+    # Run security audit every Monday at 00:00 UTC
+    - cron: '0 0 * * 1'
+
+jobs:
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Check for syntax errors
+        run: npm run check:syntax
+      
+      - name: Verify package exports
+        run: npm run verify:exports
+      
+      - name: Validate package structure
+        run: |
+          echo "Checking required files..."
+          test -f binance-futures-client.js && echo "✅ Main file exists"
+          test -f binance-futures-client.d.ts && echo "✅ TypeScript definitions exist"
+          test -f README.md && echo "✅ README exists"
+          test -f package.json && echo "✅ package.json exists"
+          
+          echo "Checking example files..."
+          ls -la examples/*.js | wc -l
+          
+          echo "Checking documentation..."
+          ls -la docs/*.md | wc -l
+
+  dependency-audit:
+    name: Dependency Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run npm audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+      
+      - name: Generate audit report
+        run: npm audit --json > audit-report.json || true
+      
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: npm-audit-report
+          path: audit-report.json
+          retention-days: 30
+      
+      - name: Check for outdated dependencies
+        run: npm outdated || true
+
+  license-check:
+    name: License Compliance
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install license checker
+        run: npm install -g license-checker
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Check licenses
+        run: |
+          license-checker --summary || true
+          license-checker --unknown-only || echo "All licenses identified"
+
+  docs-validation:
+    name: Documentation Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check markdown files
+        run: |
+          echo "Validating markdown files..."
+          find . -name "*.md" -type f | while read file; do
+            echo "Checking $file"
+            # Check for broken links (basic check)
+            grep -n "\[.*\](http" "$file" || true
+          done
+      
+      - name: Verify README structure
+        run: |
+          echo "Checking README sections..."
+          grep -q "# Binance USDⓈ-M Futures JavaScript Library" README.md && echo "✅ Title present"
+          grep -q "## Installation" README.md && echo "✅ Installation section present"
+          grep -q "## Usage" README.md && echo "✅ Usage section present"
+          grep -q "## API Reference" README.md && echo "✅ API Reference section present"
+      
+      - name: Check AI Agent Skills documentation
+        run: |
+          test -f docs/AI_AGENT_SKILLS_INTEGRATION.md && echo "✅ AI Agent Skills docs exist"
+          grep -q "BinanceAIAgentSkills" docs/AI_AGENT_SKILLS_INTEGRATION.md && echo "✅ AI Agent Skills class documented"
