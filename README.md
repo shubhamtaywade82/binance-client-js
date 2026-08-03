@@ -7,6 +7,7 @@ Designed with absolute parity to the `coindcx-client-js` architecture, providing
 ## 🚀 Key Features
 
 - **100% API Coverage:** Every REST endpoint and WebSocket stream defined in the official Binance documentation is implemented.
+- **AI Agent Skills Ready:** Pre-built skills adapter for integrating with AI assistants, chatbots, and automated trading agents.
 - **Absolute Parity:** Identical architecture to `coindcx-client-js`, including custom Error classes, Static Utilities, and Liquidation Price logic.
 - **Unified Client:** A single class, `BinanceFuturesClient`, manages both high-speed REST calls and robust WebSocket subscriptions.
 - **Smart Normalization:** Automatically converts Binance's terse WebSocket fields (e.g., `o`, `ap`, `w`) into readable, normalized objects.
@@ -97,7 +98,12 @@ For a complete reference of all 80+ methods and every available WebSocket stream
 - `binance-futures-client.js`: Core implementation & normalization engine.
 - `binance-futures-client.d.ts`: TypeScript definitions.
 - `examples/`: Ready-to-run scripts for common trading flows.
+  - `ai-agent-skills.js`: AI Agent Skills adapter for USD-M Futures
+  - `ai-agent-skills-demo.js`: Demo and usage examples for AI Agent Skills
 - `tests/`: Comprehensive test suites for public and authenticated features.
+- `docs/`: Documentation
+  - `API_DOCUMENTATION.md`: Complete API reference
+  - `AI_AGENT_SKILLS_INTEGRATION.md`: Guide for integrating with AI agents
 
 ## 🛡 Security
 
