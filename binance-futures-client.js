@@ -210,6 +210,26 @@ class BinanceFuturesClient extends EventEmitter {
             ? 'wss://demo-fapi.binance.com/ws-fapi/v1'
             : 'wss://ws-fapi.binance.com/ws-fapi/v1');
 
+        // Rate limiting configuration
+        this.rateLimiter = new RateLimiter(options.rateLimiter || {
+            tokensPerSecond: options.requestsPerSecond || 10,
+            maxTokens: options.maxBurstSize || 20
+        });
+
+        // Retry configuration
+        this.retryManager = new RetryManager(options.retry || {
+            maxRetries: options.maxRetries || 3,
+            baseDelay: options.baseRetryDelay || 1000,
+            maxDelay: options.maxRetryDelay || 30000
+        });
+
+        // WebSocket auto-reconnect configuration
+        this.wsAutoReconnect = options.wsAutoReconnect !== false;
+        this.wsMaxReconnectAttempts = options.wsMaxReconnectAttempts || 10;
+        this.wsReconnectBaseDelay = options.wsReconnectBaseDelay || 1000;
+        this.wsReconnectFactor = options.wsReconnectFactor || 2;
+        this.wsReconnectMaxDelay = options.wsReconnectMaxDelay || 60000;
+
         this.ws = null;
         this.wsConnections = new Set();
         this.wsReconnectAttempts = new Map(); // Track reconnect attempts per connection

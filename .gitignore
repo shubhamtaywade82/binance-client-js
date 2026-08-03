@@ -24,8 +24,6 @@ venv/
 # Logs and temp files
 *.log
 *.tmp
-*.swp
-*.swo
 
 # Editors
 .vscode/
@@ -33,14 +31,19 @@ venv/
 *.swp
 *.swo
 
-# System files
-.DS_Store
-Thumbs.db
+# Build artifacts
+dist/
+build/
+target/
 
-# Coverage
-coverage/
-htmlcov/
-.coverage
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
 
 # Python specific
 .mypy_cache/
