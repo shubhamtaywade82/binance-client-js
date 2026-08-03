@@ -12,20 +12,37 @@ Designed with absolute parity to the `coindcx-client-js` architecture, providing
 
 ## 🚀 Key Features
 
-- **100% API Coverage:** Every REST endpoint and WebSocket stream defined in the official Binance documentation is implemented.
-- **AI Agent Skills Ready:** Pre-built skills adapter for integrating with AI assistants, chatbots, and automated trading agents.
+- **100% API Coverage:** Every REST endpoint and WebSocket stream defined in the official Binance USD-M Futures documentation is implemented.
+- **AI Agent Skills Ready:** Pre-built skills adapter with 68+ methods across 10 skill categories for integrating with AI assistants, chatbots, and automated trading agents.
+- **MCP Server Included:** Full Model Context Protocol server with 38 tools, 4 resources, and 4 trading prompts for Claude Desktop, Cursor, VS Code, and other MCP clients.
 - **Absolute Parity:** Identical architecture to `coindcx-client-js`, including custom Error classes, Static Utilities, and Liquidation Price logic.
 - **Unified Client:** A single class, `BinanceFuturesClient`, manages both high-speed REST calls and robust WebSocket subscriptions.
 - **Smart Normalization:** Automatically converts Binance's terse WebSocket fields (e.g., `o`, `ap`, `w`) into readable, normalized objects.
 - **Auto-Signing:** Handles HMAC-SHA256 signature generation and timestamping for all authenticated requests automatically.
 - **User Data Management:** Built-in `listenKey` lifecycle management (creation, keep-alive, and cleanup) for private account streams.
 - **TypeScript Support:** Comprehensive type definitions included for enhanced DX and type safety.
+- **Safety First:** Testnet/demo support, paper trading engine, risk-check prompts, and read-only MCP tools by default.
 
-## Installation
+## 📦 Installation
+
+### Install from NPM
 
 ```bash
-npm install axios ws dotenv
+npm install binance-client
 ```
+
+### Install Dependencies
+
+If developing locally or using the MCP server:
+
+```bash
+npm install axios ws dotenv technicalindicators zod @modelcontextprotocol/sdk
+```
+
+### Requirements
+
+- Node.js 20.x or higher
+- npm 9.x or higher
 
 ## Usage
 
