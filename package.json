@@ -49,6 +49,12 @@
     "type": "git",
     "url": "git+https://github.com/shubhamtaywade82/binance-usdm-futures.git"
   },
+  "files": [
+    "binance-futures-client.js",
+    "binance-futures-client.d.ts",
+    "README.md",
+    "docs/"
+  ],
   "bugs": {
     "url": "https://github.com/shubhamtaywade82/binance-usdm-futures/issues"
   },

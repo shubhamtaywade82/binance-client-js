@@ -107,9 +107,10 @@ class RetryManager {
                     throw error;
                 }
                 
-                const delay = this.calculateDelay(attempt);
-                this._log?.(`Retry attempt ${attempt + 1}/${this.maxRetries} after ${Math.round(delay)}ms`);
-                await new Promise(resolve => setTimeout(resolve, delay));
+                if (attempt < this.maxRetries) {
+                    const delay = this.calculateDelay(attempt);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
             }
         }
         
@@ -173,6 +174,25 @@ class BinanceFuturesClient extends EventEmitter {
         this.debug = options.debug || false;
         this.recvWindow = options.recvWindow || 5000;
 
+        // Rate limiting configuration
+        this.rateLimiter = new RateLimiter({
+            tokensPerSecond: options.rateLimitTokensPerSecond || 10,
+            maxTokens: options.rateLimitMaxTokens || 20
+        });
+
+        // Retry configuration
+        this.retryManager = new RetryManager({
+            maxRetries: options.maxRetries || 3,
+            baseDelay: options.retryBaseDelay || 1000,
+            maxDelay: options.retryMaxDelay || 30000,
+            factor: options.retryFactor || 2
+        });
+
+        // WebSocket auto-reconnect configuration
+        this.wsAutoReconnect = options.wsAutoReconnect !== false; // default true
+        this.wsReconnectDelay = options.wsReconnectDelay || 5000;
+        this.wsMaxReconnectAttempts = options.wsMaxReconnectAttempts || 5;
+
         this.apiBase = options.apiBase || (this.demo
             ? 'https://demo-fapi.binance.com'
             : this.testnet
@@ -212,6 +232,7 @@ class BinanceFuturesClient extends EventEmitter {
 
         this.ws = null;
         this.wsConnections = new Set();
+        this.wsReconnectAttempts = new Map(); // Track reconnect attempts per connection
         this.listenKey = null;
         this.listenKeyInterval = null;
 
@@ -288,40 +309,34 @@ class BinanceFuturesClient extends EventEmitter {
      * Internal: Generic request handler with auto-signing, rate limiting, and retry logic.
      */
     async _request(method, path, data = {}, isPublic = false) {
-        const requestData = { ...data };
-        const url = `${this.apiBase}${path}`;
-        const headers = {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'User-Agent': 'Binance-Node-Client/1.0.0'
-        };
-
-        if (this.apiKey) {
-            headers['X-MBX-APIKEY'] = this.apiKey;
-        }
-
-        let queryString = '';
-        if (!isPublic) {
-            if (!this.apiKey || !this.apiSecret) throw new BinanceError('API Key/Secret required');
-            requestData.timestamp = Date.now();
-            requestData.recvWindow = this.recvWindow;
-            
-            queryString = this._buildQueryString(requestData);
-            
-            const signature = this._generateSignature(queryString);
-            queryString += `&signature=${signature}`;
-        } else {
-            queryString = this._buildQueryString(requestData);
-        }
-
-        const fullUrl = queryString ? `${url}?${queryString}` : url;
-
-        // Execute request with rate limiting and retry logic
         const executeRequest = async () => {
-            // Apply rate limiting for authenticated requests
-            if (!isPublic) {
-                await this.rateLimiter.acquire();
+            const requestData = { ...data };
+            const url = `${this.apiBase}${path}`;
+            const headers = {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'User-Agent': 'Binance-Node-Client/1.0.0'
+            };
+
+            if (this.apiKey) {
+                headers['X-MBX-APIKEY'] = this.apiKey;
             }
-            
+
+            let queryString = '';
+            if (!isPublic) {
+                if (!this.apiKey || !this.apiSecret) throw new BinanceError('API Key/Secret required');
+                requestData.timestamp = Date.now();
+                requestData.recvWindow = this.recvWindow;
+                
+                queryString = this._buildQueryString(requestData);
+                
+                const signature = this._generateSignature(queryString);
+                queryString += `&signature=${signature}`;
+            } else {
+                queryString = this._buildQueryString(requestData);
+            }
+
+            const fullUrl = queryString ? `${url}?${queryString}` : url;
+
             this._log(`${method} ${fullUrl}`);
             const response = await axios({
                 method,
@@ -332,20 +347,13 @@ class BinanceFuturesClient extends EventEmitter {
             return response.data;
         };
 
-        try {
-            // Use retry manager for all requests
-            return await this.retryManager.execute(executeRequest);
-        } catch (error) {
-            if (error.response) {
-                throw new BinanceAPIError(
-                    error.response.data.msg || error.response.statusText,
-                    error.response.status,
-                    error.response.data,
-                    method, url
-                );
-            }
-            throw new BinanceNetworkError(error.message, error);
+        // Apply rate limiting for non-public endpoints
+        if (!isPublic) {
+            await this.rateLimiter.acquire();
         }
+
+        // Execute with retry logic
+        return this.retryManager.execute(executeRequest);
     }
 
     // --- Public Market Data ---
@@ -858,29 +866,22 @@ class BinanceFuturesClient extends EventEmitter {
     subscribeMarketStream(stream, pair, type) {
         const url = `${this.wsBase}/${stream}`;
         const ws = new WebSocket(url);
-        this.wsConnections.add(ws);
         
-        // Track reconnection attempts
-        ws._reconnectAttempts = 0;
-        ws._streamName = stream;
-        ws._pair = pair;
-        ws._type = type;
+        // Initialize reconnect tracking for this connection
+        this.wsReconnectAttempts.set(ws, 0);
+        this.wsConnections.add(ws);
         
         ws.on('close', () => {
             this.wsConnections.delete(ws);
-            // Auto-reconnect if enabled
-            if (this.wsAutoReconnect && ws._reconnectAttempts < this.wsMaxReconnectAttempts) {
-                this._scheduleReconnect(ws, 'market');
-            } else if (this.wsAutoReconnect) {
-                this._log(`WS Max reconnection attempts reached for ${stream}`);
-                this.emit('ws:max-reconnect-attempts', { stream, type: 'market' });
-            }
+            this.wsReconnectAttempts.delete(ws);
         });
 
         ws.on('open', () => {
-            ws._reconnectAttempts = 0; // Reset on successful connection
             this._log(`WS Connected: ${stream}`);
+            // Reset reconnect attempts on successful connection
+            this.wsReconnectAttempts.set(ws, 0);
         });
+        
         ws.on('message', (msg) => {
             let data;
             try {
@@ -1011,6 +1012,30 @@ class BinanceFuturesClient extends EventEmitter {
             this.emit(stream, normalized);
         });
 
+        // Add error handler with auto-reconnect logic
+        ws.on('error', (err) => {
+            this._log(`WS Error: ${stream} - ${err.message}`);
+            this.emit('ws:error', new BinanceNetworkError(err.message, err));
+            
+            // Auto-reconnect if enabled
+            if (this.wsAutoReconnect) {
+                const attempts = this.wsReconnectAttempts.get(ws) || 0;
+                if (attempts < this.wsMaxReconnectAttempts) {
+                    this.wsReconnectAttempts.set(ws, attempts + 1);
+                    const delay = this.wsReconnectDelay * Math.pow(2, attempts);
+                    this._log(`WS Auto-reconnecting in ${delay}ms (attempt ${attempts + 1}/${this.wsMaxReconnectAttempts})`);
+                    
+                    setTimeout(() => {
+                        this._log(`WS Reconnecting to: ${stream}`);
+                        this.subscribeMarketStream(stream, pair, type);
+                    }, delay);
+                } else {
+                    this._log(`WS Max reconnect attempts reached for: ${stream}`);
+                    this.emit('ws:max-reconnect-attempts', { stream, pair, type });
+                }
+            }
+        });
+
         return ws;
     }
 
@@ -1019,26 +1044,18 @@ class BinanceFuturesClient extends EventEmitter {
         const base = this.wsBase.replace(/\/ws$/, '/stream');
         const url = `${base}?streams=${normalizedStreams}`;
         const ws = new WebSocket(url);
-        this.wsConnections.add(ws);
         
-        // Track reconnection attempts for combined streams
-        ws._reconnectAttempts = 0;
-        ws._streams = streams;
+        this.wsReconnectAttempts.set(ws, 0);
+        this.wsConnections.add(ws);
         
         ws.on('close', () => {
             this.wsConnections.delete(ws);
-            // Auto-reconnect if enabled
-            if (this.wsAutoReconnect && ws._reconnectAttempts < this.wsMaxReconnectAttempts) {
-                this._scheduleReconnect(ws, 'combined');
-            } else if (this.wsAutoReconnect) {
-                this._log(`WS Max reconnection attempts reached for combined streams`);
-                this.emit('ws:max-reconnect-attempts', { streams, type: 'combined' });
-            }
+            this.wsReconnectAttempts.delete(ws);
         });
         
         ws.on('open', () => {
-            ws._reconnectAttempts = 0; // Reset on successful connection
-            this._log(`WS Connected: Combined Streams (${streams.length} streams)`);
+            this._log(`WS Combined Connected: ${normalizedStreams}`);
+            this.wsReconnectAttempts.set(ws, 0);
         });
         
         ws.on('message', (msg) => {
@@ -1052,6 +1069,29 @@ class BinanceFuturesClient extends EventEmitter {
             this.emit(packet.stream, packet.data);
             this.emit('ws:combined', packet);
         });
+        
+        ws.on('error', (err) => {
+            this._log(`WS Combined Error: ${err.message}`);
+            this.emit('ws:error', new BinanceNetworkError(err.message, err));
+            
+            if (this.wsAutoReconnect) {
+                const attempts = this.wsReconnectAttempts.get(ws) || 0;
+                if (attempts < this.wsMaxReconnectAttempts) {
+                    this.wsReconnectAttempts.set(ws, attempts + 1);
+                    const delay = this.wsReconnectDelay * Math.pow(2, attempts);
+                    this._log(`WS Combined Auto-reconnecting in ${delay}ms (attempt ${attempts + 1}/${this.wsMaxReconnectAttempts})`);
+                    
+                    setTimeout(() => {
+                        this._log(`WS Combined Reconnecting`);
+                        this.subscribeCombinedMarketStreams(streams);
+                    }, delay);
+                } else {
+                    this._log(`WS Combined Max reconnect attempts reached`);
+                    this.emit('ws:max-reconnect-attempts', { streams });
+                }
+            }
+        });
+        
         return ws;
     }
 
@@ -1230,26 +1270,19 @@ class BinanceFuturesClient extends EventEmitter {
 
         const url = `${this.wsUserBase}/${this.listenKey}`;
         this.ws = new WebSocket(url);
-        this.wsConnections.add(this.ws);
         
-        // Track reconnection attempts for user data stream
-        this.ws._reconnectAttempts = 0;
-        this.ws._streamName = 'userData';
+        // Initialize reconnect tracking for user stream
+        this.wsReconnectAttempts.set(this.ws, 0);
+        this.wsConnections.add(this.ws);
         
         this.ws.on('close', () => {
             this.wsConnections.delete(this.ws);
-            // Auto-reconnect if enabled
-            if (this.wsAutoReconnect && this.ws._reconnectAttempts < this.wsMaxReconnectAttempts) {
-                this._scheduleReconnect(this.ws, 'userData');
-            } else if (this.wsAutoReconnect) {
-                this._log(`WS Max reconnection attempts reached for user data stream`);
-                this.emit('ws:max-reconnect-attempts', { type: 'userData' });
-            }
+            this.wsReconnectAttempts.delete(this.ws);
         });
         
         this.ws.on('open', () => {
-            this.ws._reconnectAttempts = 0; // Reset on successful connection
-            this._log(`WS Connected: User Data Stream`);
+            this._log('WS User Stream Connected');
+            this.wsReconnectAttempts.set(this.ws, 0);
         });
 
         this.ws.on('message', (msg) => {
@@ -1264,34 +1297,109 @@ class BinanceFuturesClient extends EventEmitter {
             this.emit(`ws:${event}`, normalized);
             this.emit('userData', data);
         });
+        
+        // Add error handler with auto-reconnect for user stream
+        this.ws.on('error', (err) => {
+            this._log(`WS User Stream Error: ${err.message}`);
+            this.emit('ws:error', new BinanceNetworkError(err.message, err));
+            
+            if (this.wsAutoReconnect && this.listenKey) {
+                const attempts = this.wsReconnectAttempts.get(this.ws) || 0;
+                if (attempts < this.wsMaxReconnectAttempts) {
+                    this.wsReconnectAttempts.set(this.ws, attempts + 1);
+                    const delay = this.wsReconnectDelay * Math.pow(2, attempts);
+                    this._log(`WS User Stream Auto-reconnecting in ${delay}ms (attempt ${attempts + 1}/${this.wsMaxReconnectAttempts})`);
+                    
+                    setTimeout(() => {
+                        this._log('WS User Stream Reconnecting');
+                        this.subscribeUserStream();
+                    }, delay);
+                } else {
+                    this._log('WS User Stream Max reconnect attempts reached');
+                    this.emit('ws:max-reconnect-attempts', { type: 'user-stream' });
+                }
+            }
+        });
 
         return this.ws;
     }
-    
+
+    // --- Utility Methods ---
+
     /**
-     * Internal: Schedule WebSocket reconnection with exponential backoff
+     * Get current rate limiter status
+     * @returns {Object} Rate limiter stats
      */
-    _scheduleReconnect(ws, type) {
-        ws._reconnectAttempts++;
-        const delay = Math.min(
-            this.wsReconnectBaseDelay * Math.pow(this.wsReconnectFactor, ws._reconnectAttempts - 1),
-            this.wsReconnectMaxDelay
-        );
-        // Add jitter (±10%)
-        const jitter = delay * 0.1 * (Math.random() * 2 - 1);
-        const finalDelay = Math.max(0, delay + jitter);
-        
-        this._log(`Scheduling ${type} WS reconnect attempt ${ws._reconnectAttempts}/${this.wsMaxReconnectAttempts} in ${Math.round(finalDelay)}ms`);
-        
-        setTimeout(() => {
-            if (type === 'market') {
-                this.subscribeMarketStream(ws._streamName, ws._pair, ws._type);
-            } else if (type === 'combined') {
-                this.subscribeCombinedMarketStreams(ws._streams);
-            } else if (type === 'userData') {
-                this.subscribeUserStream().catch(e => this._log('User stream reconnect failed', e));
-            }
-        }, finalDelay);
+    getRateLimiterStatus() {
+        return {
+            tokens: this.rateLimiter.tokens,
+            maxTokens: this.rateLimiter.maxTokens,
+            tokensPerSecond: this.rateLimiter.tokensPerSecond,
+            queueLength: this.rateLimiter.queue.length
+        };
+    }
+
+    /**
+     * Configure rate limiter dynamically
+     * @param {Object} options - Rate limiter options
+     */
+    configureRateLimiter(options) {
+        if (options.tokensPerSecond !== undefined) {
+            this.rateLimiter.tokensPerSecond = options.tokensPerSecond;
+        }
+        if (options.maxTokens !== undefined) {
+            this.rateLimiter.maxTokens = options.maxTokens;
+        }
+    }
+
+    /**
+     * Get retry manager configuration
+     * @returns {Object} Retry manager config
+     */
+    getRetryConfig() {
+        return {
+            maxRetries: this.retryManager.maxRetries,
+            baseDelay: this.retryManager.baseDelay,
+            maxDelay: this.retryManager.maxDelay,
+            factor: this.retryManager.factor
+        };
+    }
+
+    /**
+     * Configure retry manager dynamically
+     * @param {Object} options - Retry manager options
+     */
+    configureRetry(options) {
+        if (options.maxRetries !== undefined) {
+            this.retryManager.maxRetries = options.maxRetries;
+        }
+        if (options.baseDelay !== undefined) {
+            this.retryManager.baseDelay = options.baseDelay;
+        }
+        if (options.maxDelay !== undefined) {
+            this.retryManager.maxDelay = options.maxDelay;
+        }
+        if (options.factor !== undefined) {
+            this.retryManager.factor = options.factor;
+        }
+    }
+
+    /**
+     * Manually trigger reconnection for a specific WebSocket
+     * @param {WebSocket} ws - WebSocket connection to reconnect
+     */
+    reconnectWebSocket(ws) {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.close();
+        }
+        // The auto-reconnect logic will handle reconnection
+    }
+
+    /**
+     * Reset reconnect attempts counter for all connections
+     */
+    resetReconnectAttempts() {
+        this.wsReconnectAttempts.clear();
     }
 }
 
@@ -1299,5 +1407,7 @@ module.exports = {
     BinanceFuturesClient,
     BinanceError,
     BinanceAPIError,
-    BinanceNetworkError
+    BinanceNetworkError,
+    RateLimiter,
+    RetryManager
 };

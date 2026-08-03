@@ -1,58 +1,17 @@
-# Dependencies
 node_modules/
-
-# Test files
 tests/
-
-# Examples
 examples/
-
-# GitHub configuration
 .github/
-
-# Codex configuration
 .codex/
-
-# Skills directory
 skills/
-
-# MCP server files (included separately if needed)
 mcp-server/
 mcp-config/
-mcp-server.js
-
-# Documentation (keep README.md)
-docs/
 *.md
-!README.md
-
-# Environment files
 .env*
-!.env.example
-
-# Git files
-.git/
 .gitignore
-
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# Logs
-*.log
-npm-debug.log*
-
-# OS files
+.npmignore
+package-lock.json
 .DS_Store
-Thumbs.db
-
-# Build artifacts
-dist/
-build/
-
-# Coverage
+*.log
 coverage/
 .nyc_output/
