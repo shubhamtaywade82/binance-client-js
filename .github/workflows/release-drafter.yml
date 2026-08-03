@@ -33,7 +33,7 @@ jobs:
             ### 📦 Installation
             
             ```bash
-            npm install binance-client@latest
+            npm install binance-usdm-futures@latest
             ```
             
             ### ✨ What's New
@@ -47,7 +47,7 @@ jobs:
             
             ### 🔗 Links
             
-            - [NPM Package](https://www.npmjs.com/package/binance-client)
+            - [NPM Package](https://www.npmjs.com/package/binance-usdm-futures)
             - [Issues](https://github.com/${{ github.repository }}/issues)
             
             ---

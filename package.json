@@ -1,9 +1,15 @@
 {
-  "name": "binance-client",
+  "name": "binance-usdm-futures",
   "version": "2.1.0",
-  "description": "Binance USDⓈ-M Futures JavaScript Library",
+  "description": "Binance USDⓈ-M Futures JavaScript Library - Professional Trading SDK",
   "main": "binance-futures-client.js",
   "types": "binance-futures-client.d.ts",
+  "files": [
+    "binance-futures-client.js",
+    "binance-futures-client.d.ts",
+    "README.md",
+    "docs/"
+  ],
   "scripts": {
     "test": "npm run test:unit",
     "test:unit": "node tests/unit/client_unit_test.js && node tests/mcp-server.test.js",
@@ -17,9 +23,13 @@
     "binance",
     "futures",
     "usds-m",
+    "usdm",
     "api",
     "client",
-    "crypto"
+    "crypto",
+    "trading",
+    "websocket",
+    "algorithmic-trading"
   ],
   "author": "",
   "license": "ISC",
@@ -37,7 +47,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/shubhamtaywade82/binance-client-js.git"
+    "url": "git+https://github.com/shubhamtaywade82/binance-usdm-futures.git"
   },
   "files": [
     "binance-futures-client.js",
@@ -46,10 +56,10 @@
     "docs/"
   ],
   "bugs": {
-    "url": "https://github.com/shubhamtaywade82/binance-client-js/issues"
+    "url": "https://github.com/shubhamtaywade82/binance-usdm-futures/issues"
   },
-  "homepage": "https://github.com/shubhamtaywade82/binance-client-js#readme",
+  "homepage": "https://github.com/shubhamtaywade82/binance-usdm-futures#readme",
   "bin": {
-    "binance-client-mcp": "./mcp-server/index.js"
+    "binance-usdm-futures-mcp": "./mcp-server/index.js"
   }
 }

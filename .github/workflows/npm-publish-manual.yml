@@ -29,7 +29,7 @@ jobs:
     
     environment:
       name: npm-manual
-      url: https://www.npmjs.com/package/binance-client
+      url: https://www.npmjs.com/package/binance-usdm-futures
     
     steps:
       - name: Checkout code
@@ -99,13 +99,13 @@ jobs:
             Automated release triggered by workflow dispatch.
             
             ### NPM Package
-            - Package: binance-client@${{ steps.bump_version.outputs.new_version }}
+            - Package: binance-usdm-futures@${{ steps.bump_version.outputs.new_version }}
             - Tag: ${{ github.event.inputs.publish_tag }}
-            - URL: https://www.npmjs.com/package/binance-client/v/${{ steps.bump_version.outputs.new_version }}
+            - URL: https://www.npmjs.com/package/binance-usdm-futures/v/${{ steps.bump_version.outputs.new_version }}
             
             ### Installation
             ```bash
-            npm install binance-client@${{ github.event.inputs.publish_tag }}
+            npm install binance-usdm-futures@${{ github.event.inputs.publish_tag }}
             ```
           draft: false
           prerelease: ${{ github.event.inputs.publish_tag != 'latest' }}
@@ -115,7 +115,7 @@ jobs:
       - name: Success notification
         if: success()
         run: |
-          echo "✅ Successfully published binance-client@${{ steps.bump_version.outputs.new_version }} to NPM"
-          echo "📦 Package available at: https://www.npmjs.com/package/binance-client"
+          echo "✅ Successfully published binance-usdm-futures@${{ steps.bump_version.outputs.new_version }} to NPM"
+          echo "📦 Package available at: https://www.npmjs.com/package/binance-usdm-futures"
           echo "🏷️  Tag: ${{ github.event.inputs.publish_tag }}"
           echo "🔖 Git tag: v${{ steps.bump_version.outputs.new_version }}"

@@ -94,7 +94,7 @@ jobs:
       
       - name: Verify package contents
         run: |
-          tar -tzf binance-client-*.tgz | head -20
+          tar -tzf binance-usdm-futures-*.tgz | head -20
           echo "Package validation successful"
 
   publish-npm:
@@ -105,7 +105,7 @@ jobs:
     
     environment:
       name: npm
-      url: https://www.npmjs.com/package/binance-client
+      url: https://www.npmjs.com/package/binance-usdm-futures
     
     steps:
       - name: Checkout code
@@ -139,8 +139,8 @@ jobs:
       - name: Create GitHub Release Notes
         if: success()
         run: |
-          echo "✅ Successfully published binance-client@${{ env.VERSION }} to NPM"
-          echo "📦 Package available at: https://www.npmjs.com/package/binance-client"
+          echo "✅ Successfully published binance-usdm-futures@${{ env.VERSION }} to NPM"
+          echo "📦 Package available at: https://www.npmjs.com/package/binance-usdm-futures"
 
   auto-tag:
     name: Auto Tag Release

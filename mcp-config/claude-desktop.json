@@ -3,7 +3,7 @@
     "binance-futures": {
       "command": "node",
       "args": ["mcp-server/index.js"],
-      "cwd": "/absolute/path/to/binance-client-js",
+      "cwd": "/absolute/path/to/binance-usdm-futures",
       "env": {
         "BINANCE_TESTNET": "true"
       }
