@@ -25,7 +25,7 @@ description: Use when Codex needs to build, audit, test, or operate Binance USD-
 Start the server with:
 
 ```sh
-npx binance-client-mcp
+npx binance-usdm-futures-mcp
 ```
 
 For local development inside this repo, run:

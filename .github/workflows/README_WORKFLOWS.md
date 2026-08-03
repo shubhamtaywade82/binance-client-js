@@ -1,6 +1,6 @@
 # GitHub Actions CI/CD Setup
 
-This document describes the GitHub Actions workflows configured for the `binance-client-js` repository.
+This document describes the GitHub Actions workflows configured for the `binance-usdm-futures` repository.
 
 ## 📋 Overview
 
@@ -187,10 +187,10 @@ Configure these secrets in your GitHub repository settings:
 Add these badges to your README.md:
 
 ```markdown
-[![CI/CD Pipeline](https://github.com/shubhamtaywade82/binance-client-js/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/shubhamtaywade82/binance-client-js/actions/workflows/ci-cd.yml)
-[![Code Quality](https://github.com/shubhamtaywade82/binance-client-js/actions/workflows/code-quality.yml/badge.svg)](https://github.com/shubhamtaywade82/binance-client-js/actions/workflows/code-quality.yml)
-[![npm version](https://img.shields.io/npm/v/binance-client.svg)](https://www.npmjs.com/package/binance-client)
-[![npm downloads](https://img.shields.io/npm/dm/binance-client.svg)](https://www.npmjs.com/package/binance-client)
+[![CI/CD Pipeline](https://github.com/shubhamtaywade82/binance-usdm-futures/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/shubhamtaywade82/binance-usdm-futures/actions/workflows/ci-cd.yml)
+[![Code Quality](https://github.com/shubhamtaywade82/binance-usdm-futures/actions/workflows/code-quality.yml/badge.svg)](https://github.com/shubhamtaywade82/binance-usdm-futures/actions/workflows/code-quality.yml)
+[![npm version](https://img.shields.io/npm/v/binance-usdm-futures.svg)](https://www.npmjs.com/package/binance-usdm-futures)
+[![npm downloads](https://img.shields.io/npm/dm/binance-usdm-futures.svg)](https://www.npmjs.com/package/binance-usdm-futures)
 ```
 
 ---

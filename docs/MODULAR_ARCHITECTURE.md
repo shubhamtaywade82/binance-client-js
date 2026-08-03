@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `binance-client-js` SDK has been refactored to follow a modular architecture similar to `dhanhq-ts`, providing:
+The `binance-usdm-futures-js` SDK has been refactored to follow a modular architecture similar to `dhanhq-ts`, providing:
 
 - **Clean separation of concerns** - Each API category is in its own module
 - **Public/Private endpoint distinction** - Public endpoints work without credentials, private endpoints require authentication
@@ -157,7 +157,7 @@ The `BinanceBase` class provides core functionality:
 ### Public Endpoints (No Credentials)
 
 ```javascript
-const { BinanceFuturesClient } = require('binance-client');
+const { BinanceFuturesClient } = require('binance-usdm-futures');
 
 // Create client without credentials
 const client = new BinanceFuturesClient();
@@ -176,7 +176,7 @@ console.log('Klines:', klines);
 ### Private Endpoints (With Credentials)
 
 ```javascript
-const { BinanceFuturesClient } = require('binance-client');
+const { BinanceFuturesClient } = require('binance-usdm-futures');
 
 // Create client with credentials
 const client = new BinanceFuturesClient({
@@ -226,7 +226,7 @@ const ticker = await client.getTickerPrice('BTCUSDT'); // ✓ Works
 ### WebSocket Streams
 
 ```javascript
-const { BinanceFuturesClient } = require('binance-client');
+const { BinanceFuturesClient } = require('binance-usdm-futures');
 
 const client = new BinanceFuturesClient();
 

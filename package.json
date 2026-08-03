@@ -47,13 +47,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/shubhamtaywade82/binance-client-js.git"
+    "url": "git+https://github.com/shubhamtaywade82/binance-usdm-futures.git"
   },
   "bugs": {
-    "url": "https://github.com/shubhamtaywade82/binance-client-js/issues"
+    "url": "https://github.com/shubhamtaywade82/binance-usdm-futures/issues"
   },
-  "homepage": "https://github.com/shubhamtaywade82/binance-client-js#readme",
+  "homepage": "https://github.com/shubhamtaywade82/binance-usdm-futures#readme",
   "bin": {
-    "binance-client-mcp": "./mcp-server/index.js"
+    "binance-usdm-futures-mcp": "./mcp-server/index.js"
   }
 }

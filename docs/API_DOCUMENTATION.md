@@ -5,7 +5,7 @@
 ### Constructor
 
 ```javascript
-const { BinanceFuturesClient } = require('binance-client-js');
+const { BinanceFuturesClient } = require('binance-usdm-futures-js');
 
 const client = new BinanceFuturesClient({
     apiKey: '...',
@@ -293,7 +293,7 @@ The library exports several custom error classes for better error handling:
 - **`BinanceNetworkError`**: Thrown for network-level issues (timeout, DNS, etc.). Includes the `originalError`.
 
 ```javascript
-const { BinanceAPIError } = require('binance-client-js');
+const { BinanceAPIError } = require('binance-usdm-futures-js');
 try {
     await client.createOrder({...});
 } catch (err) {

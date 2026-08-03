@@ -1,9 +1,9 @@
 # Binance USDⓈ-M Futures JavaScript Library
 
-[![CI/CD Pipeline](https://github.com/shubhamtaywade82/binance-client-js/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/shubhamtaywade82/binance-client-js/actions/workflows/ci-cd.yml)
-[![Code Quality](https://github.com/shubhamtaywade82/binance-client-js/actions/workflows/code-quality.yml/badge.svg)](https://github.com/shubhamtaywade82/binance-client-js/actions/workflows/code-quality.yml)
-[![npm version](https://img.shields.io/npm/v/binance-client.svg)](https://www.npmjs.com/package/binance-client)
-[![npm downloads](https://img.shields.io/npm/dm/binance-client.svg)](https://www.npmjs.com/package/binance-client)
+[![CI/CD Pipeline](https://github.com/shubhamtaywade82/binance-usdm-futures-js/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/shubhamtaywade82/binance-usdm-futures-js/actions/workflows/ci-cd.yml)
+[![Code Quality](https://github.com/shubhamtaywade82/binance-usdm-futures-js/actions/workflows/code-quality.yml/badge.svg)](https://github.com/shubhamtaywade82/binance-usdm-futures-js/actions/workflows/code-quality.yml)
+[![npm version](https://img.shields.io/npm/v/binance-usdm-futures.svg)](https://www.npmjs.com/package/binance-usdm-futures)
+[![npm downloads](https://img.shields.io/npm/dm/binance-usdm-futures.svg)](https://www.npmjs.com/package/binance-usdm-futures)
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
 
 A high-performance, feature-complete JavaScript client for the Binance USDⓈ-M Futures API (REST & WebSocket). 
@@ -28,7 +28,7 @@ Designed with absolute parity to the `coindcx-client-js` architecture, providing
 ### Install from NPM
 
 ```bash
-npm install binance-client
+npm install binance-usdm-futures
 ```
 
 ### Install Dependencies
@@ -51,7 +51,7 @@ See the [Quick Start](#-quick-start) section below for basic usage examples.
 ## 🛠 Quick Start
 
 ```javascript
-const { BinanceFuturesClient } = require('binance-client-js');
+const { BinanceFuturesClient } = require('binance-usdm-futures-js');
 
 const client = new BinanceFuturesClient({
     apiKey: 'YOUR_API_KEY',

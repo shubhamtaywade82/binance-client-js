@@ -1,6 +1,6 @@
 # Binance AI Agent Skills Integration Guide
 
-This document explains how the `binance-client-js` SDK relates to Binance AI Agent Skills and how to use them together.
+This document explains how the `binance-usdm-futures-js` SDK relates to Binance AI Agent Skills and how to use them together.
 
 ## Understanding Binance AI Agent Skills
 
@@ -8,7 +8,7 @@ Binance AI Agent Skills are pre-built capabilities that enable AI assistants to 
 
 ### USD-M Futures Skills Coverage
 
-Your `binance-client-js` SDK already implements **all core USD-M Futures operations** that correspond to Binance AI Agent Skills:
+Your `binance-usdm-futures-js` SDK already implements **all core USD-M Futures operations** that correspond to Binance AI Agent Skills:
 
 | AI Agent Skill Category | SDK Methods | Description |
 |------------------------|-------------|-------------|
@@ -25,7 +25,7 @@ Your `binance-client-js` SDK already implements **all core USD-M Futures operati
 The SDK provides native JavaScript methods for all USD-M Futures operations:
 
 ```javascript
-const { BinanceFuturesClient } = require('binance-client-js');
+const { BinanceFuturesClient } = require('binance-usdm-futures-js');
 
 const client = new BinanceFuturesClient({
     apiKey: 'YOUR_API_KEY',
@@ -68,7 +68,7 @@ If you want to expose the SDK as formal "skills" for an AI agent framework, crea
 
 ```javascript
 // ai-agent-skills.js
-const { BinanceFuturesClient } = require('binance-client-js');
+const { BinanceFuturesClient } = require('binance-usdm-futures-js');
 
 class BinanceAIAgentSkills {
     constructor(options = {}) {
@@ -544,7 +544,7 @@ BINANCE_TESTNET=true
 
 ## Conclusion
 
-The `binance-client-js` SDK provides complete coverage of all USD-M Futures AI Agent Skills. You can:
+The `binance-usdm-futures-js` SDK provides complete coverage of all USD-M Futures AI Agent Skills. You can:
 
 1. **Use the SDK directly** for traditional application development
 2. **Use the Skills Adapter** to expose methods in an AI-agent-friendly format
