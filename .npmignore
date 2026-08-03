@@ -1,0 +1,17 @@
+node_modules/
+tests/
+examples/
+.github/
+.codex/
+skills/
+mcp-server/
+mcp-config/
+*.md
+.env*
+.gitignore
+.npmignore
+package-lock.json
+.DS_Store
+*.log
+coverage/
+.nyc_output/
