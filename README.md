@@ -21,11 +21,15 @@ Designed with absolute parity to the `coindcx-client-js` architecture, providing
 - **User Data Management:** Built-in `listenKey` lifecycle management (creation, keep-alive, and cleanup) for private account streams.
 - **TypeScript Support:** Comprehensive type definitions included for enhanced DX and type safety.
 
-## 📦 Installation
+## Installation
 
 ```bash
 npm install axios ws dotenv
 ```
+
+## Usage
+
+See the [Quick Start](#-quick-start) section below for basic usage examples.
 
 ## 🛠 Quick Start
 
@@ -98,6 +102,43 @@ npm run verify
 For a complete reference of all 80+ methods and every available WebSocket stream, please see the:
 
 👉 **[API Documentation Reference](./docs/API_DOCUMENTATION.md)**
+
+## API Reference
+
+This library provides comprehensive API coverage for Binance USDⓈ-M Futures. Below is a summary of the main categories:
+
+### REST API Methods
+
+**Market Data:**
+- `getTickerPrice(symbol)` - Get current ticker price
+- `getOrderBook(symbol, limit)` - Get order book depth
+- `getRecentTrades(symbol, limit)` - Get recent trades
+- `getKlines(symbol, interval, options)` - Get candlestick data
+- `getOpenInterest(symbol)` - Get open interest statistics
+- `getFundingRate(symbol, options)` - Get funding rate history
+
+**Account & Trading:**
+- `createOrder(params)` - Place a new order
+- `cancelOrder(params)` - Cancel an existing order
+- `getOrder(params)` - Query order status
+- `getOpenOrders(params)` - Get all open orders
+- `getBalance()` - Get account balance
+- `getPositionRisk()` - Get position risk information
+
+### WebSocket Streams
+
+**Market Streams:**
+- `wsSubscribeTrades(symbol)` - Subscribe to trade updates
+- `wsSubscribeCandlesticks(symbol, interval)` - Subscribe to kline/candlestick updates
+- `wsSubscribeOrderBook(symbol, level)` - Subscribe to order book updates
+- `wsSubscribeTicker(symbol)` - Subscribe to 24hr ticker
+
+**User Streams:**
+- `startUserStream()` - Start user data stream
+- `keepAliveUserStream(listenKey)` - Keep user stream alive
+- `closeUserStream()` - Close user data stream
+
+For detailed method signatures, parameters, and examples, see the full [API Documentation](./docs/API_DOCUMENTATION.md).
 
 ## 📂 Project Structure
 

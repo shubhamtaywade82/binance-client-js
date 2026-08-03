@@ -1,4 +1,1 @@
-```yaml
-# Configuration file for GitHub Actions workflow
-!.github/workflows/ci-cd.yml
-```
+Nothing should be ignored since only a README.md file was modified and no build artifacts, dependencies, or temp files were included in the changes.
