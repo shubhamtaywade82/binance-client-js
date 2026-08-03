@@ -2,7 +2,19 @@
 # Dependencies
 node_modules/
 
-# Environment
+# Build artifacts
+dist/
+build/
+target/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py.class
+venv/
+.venv/
 .env
 .env.local
 .env.*
@@ -26,32 +38,7 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-*.so
-*.egg-info/
-.eggs/
-
-# Build outputs
-dist/
-build/
-*.out
-*.exe
-*.dll
-*.so
-*.a
-*.obj
-
-# Testing
-.pytest_cache/
-.mypy_cache/
-.tox/
-
-# Compressed files
+# Compressed
 *.zip
 *.gz
 *.tar
@@ -74,4 +61,72 @@ build/
 *.tar.bz2
 *.tar.xz
 *.tar.zst
+
+# Testing
+.mypy_cache/
+.pytest_cache/
+.nyc_output/
+coverage/
+
+# Node
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Gradle
+.gradle/
+build/
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.hprof
+
+# C/C++
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+*.exe
+*.out
+
+# Go
+*.exe
+*.test
+*.prof
+
+# Rust
+target/
+Cargo.lock
+
+# Ruby
+*.gem
+*.rbc
+.bundle/
+vendor/bundle/
+vendor/cache/
+vendor/gems/
+vendor/ruby/
+
+# .NET
+bin/
+obj/
+*.sln
+*.csproj.user
+
+# Julia
+julia-*/
+
+# Zig
+zig-*/
+
+# Temporary files
+*.tmp
+*~
 ```
