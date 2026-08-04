@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Multi-TF EMA Alignment",
+    "trades": 214,
+    "winRate": "35.5",
+    "totalReturn": "-96.04",
+    "profitFactor": "0.92",
+    "maxDrawdown": "100.0",
+    "finalBalance": "396.47"
+  },
+  {
+    "name": "MACD + ADX Filter (Optimized)",
+    "trades": 16,
+    "winRate": "31.3",
+    "totalReturn": "-35.74",
+    "profitFactor": "0.75",
+    "maxDrawdown": "64.4",
+    "finalBalance": "6426.37"
+  },
+  {
+    "name": "Volume Spike Breakout",
+    "trades": 49,
+    "winRate": "20.4",
+    "totalReturn": "-99.01",
+    "profitFactor": "0.63",
+    "maxDrawdown": "99.6",
+    "finalBalance": "99.09"
+  },
+  {
+    "name": "RSI Divergence + Trend",
+    "trades": 36,
+    "winRate": "38.9",
+    "totalReturn": "-58.97",
+    "profitFactor": "0.56",
+    "maxDrawdown": "97.3",
+    "finalBalance": "4102.76"
+  }
+]
