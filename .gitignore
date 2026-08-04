@@ -41,6 +41,10 @@ Thumbs.db
 
 # Test and coverage
 .mypy_cache/
+.dmypy.json
+dmypy.json
+
+# PyTest
 .pytest_cache/
 .nyc_output/
 coverage/
