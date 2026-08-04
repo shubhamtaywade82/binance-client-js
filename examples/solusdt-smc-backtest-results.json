@@ -1,0 +1,13 @@
+{
+  "summary": {
+    "totalTrades": 0,
+    "wins": 0,
+    "losses": 0,
+    "winRate": "0.00%",
+    "profitFactor": "0.00",
+    "totalReturn": "0.00%",
+    "finalEquity": "10000.00",
+    "biasUsed": "BEARISH"
+  },
+  "trades": []
+}
