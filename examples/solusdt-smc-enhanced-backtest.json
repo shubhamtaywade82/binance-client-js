@@ -1,0 +1,31 @@
+{
+  "summary": {
+    "totalTrades": 2,
+    "wins": 1,
+    "losses": 1,
+    "winRate": "50.00%",
+    "profitFactor": "0.26",
+    "totalReturn": "-9.25%",
+    "finalEquity": "$9075.18",
+    "bias": "RANGE",
+    "hasEdge": false
+  },
+  "trades": [
+    {
+      "type": "SHORT",
+      "entry": 80.86,
+      "exit": 81.83032,
+      "pnl": "-12.00%",
+      "reason": "Bias:RANGE-BEAR|Sweep:BSL|FVG:Active|OB:Mitigated",
+      "confidence": 75
+    },
+    {
+      "type": "LONG",
+      "entry": 81.68,
+      "exit": 81.93542000000001,
+      "pnl": "3.13%",
+      "reason": "Bias:RANGE-BULL|Sweep:SSL|FVG:Active|OB:Mitigated",
+      "confidence": 75
+    }
+  ]
+}
