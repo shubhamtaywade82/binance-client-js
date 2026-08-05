@@ -1,0 +1,1010 @@
+{
+  "5m": {
+    "totalCandles": 1000,
+    "signalCount": 17,
+    "bullishSignals": 8,
+    "bearishSignals": 9,
+    "avgAdaptiveMultiplier": 2.9904813619006876,
+    "avgATR": 69.49546892987847,
+    "adxFilterEnabled": true,
+    "adxThreshold": 25,
+    "avgADX": 28.79648255705735,
+    "avgADXAtSignals": 35.450641346695996,
+    "statistics": {
+      "BULLISH": {
+        "1": {
+          "count": 8,
+          "avgMove": 0.03014269330384241,
+          "winRate": 50,
+          "avgWin": 0.10860208254896316,
+          "avgLoss": -0.04831669594127834,
+          "profitFactor": 2.2477133511147493,
+          "maxWin": 0.1400720552275111,
+          "maxLoss": -0.09184132549372018,
+          "totalPnL": 0.2411415464307393
+        },
+        "3": {
+          "count": 8,
+          "avgMove": -0.0060691737033042245,
+          "winRate": 37.5,
+          "avgWin": 0.10411611184907955,
+          "avgLoss": -0.0721803450347345,
+          "profitFactor": 0.8654664518351387,
+          "maxWin": 0.12343547138918803,
+          "maxLoss": -0.08827316588839643,
+          "totalPnL": -0.048553389626433796
+        },
+        "5": {
+          "count": 8,
+          "avgMove": -0.025545912101367405,
+          "winRate": 37.5,
+          "avgWin": 0.09918931094453749,
+          "avgLoss": -0.10038704592891035,
+          "profitFactor": 0.5928412975601193,
+          "maxWin": 0.14821849997121503,
+          "maxLoss": -0.1841480631098793,
+          "totalPnL": -0.20436729681093924
+        },
+        "10": {
+          "count": 8,
+          "avgMove": -0.10783874345790173,
+          "winRate": 25,
+          "avgWin": 0.23858623752072028,
+          "avgLoss": -0.22331373711744237,
+          "profitFactor": 0.3561301103407505,
+          "maxWin": 0.37446356734907466,
+          "maxLoss": -0.580058641927429,
+          "totalPnL": -0.8627099476632138
+        }
+      },
+      "BEARISH": {
+        "1": {
+          "count": 9,
+          "avgMove": 0.00029801482284121144,
+          "winRate": 66.66666666666666,
+          "avgWin": 0.038701509833198505,
+          "avgLoss": -0.07650897519787338,
+          "profitFactor": 1.0116854848233348,
+          "maxWin": 0.12302259953326314,
+          "maxLoss": -0.14953576370836816,
+          "totalPnL": 0.002682133405570903
+        },
+        "3": {
+          "count": 9,
+          "avgMove": -0.03798432543590286,
+          "winRate": 33.33333333333333,
+          "avgWin": 0.06037208966760019,
+          "avgLoss": -0.08716253298765438,
+          "profitFactor": 0.3463190409814687,
+          "maxWin": 0.09829286578484137,
+          "maxLoss": -0.2321931949655832,
+          "totalPnL": -0.34185892892312575
+        },
+        "5": {
+          "count": 8,
+          "avgMove": -0.009645577437396465,
+          "winRate": 50,
+          "avgWin": 0.08469670670924234,
+          "avgLoss": -0.10398786158403525,
+          "profitFactor": 0.8144864738928858,
+          "maxWin": 0.15745640601840105,
+          "maxLoss": -0.25264792927776547,
+          "totalPnL": -0.07716461949917172
+        },
+        "10": {
+          "count": 8,
+          "avgMove": -0.09728986311056342,
+          "winRate": 37.5,
+          "avgWin": 0.09160041641944487,
+          "avgLoss": -0.21062403082856837,
+          "profitFactor": 0.2609400723908864,
+          "maxWin": 0.16747351335953434,
+          "maxLoss": -0.6069392762280569,
+          "totalPnL": -0.7783189048845074
+        }
+      }
+    },
+    "signals": [
+      {
+        "index": 99,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 62822.7,
+        "adx": 34.7277693315104,
+        "timestamp": "2026-08-02T00:35:00.000Z"
+      },
+      {
+        "index": 105,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 62896.2,
+        "adx": 29.875080261555887,
+        "timestamp": "2026-08-02T01:05:00.000Z"
+      },
+      {
+        "index": 155,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 63454.4,
+        "adx": 46.264500924449564,
+        "timestamp": "2026-08-02T05:15:00.000Z"
+      },
+      {
+        "index": 206,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 63285.9,
+        "adx": 39.091906176398446,
+        "timestamp": "2026-08-02T09:30:00.000Z"
+      },
+      {
+        "index": 216,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 63129,
+        "adx": 38.144635091580476,
+        "timestamp": "2026-08-02T10:20:00.000Z"
+      },
+      {
+        "index": 315,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 63403,
+        "adx": 38.4056103526376,
+        "timestamp": "2026-08-02T18:35:00.000Z"
+      },
+      {
+        "index": 320,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 63331.6,
+        "adx": 44.224222628832464,
+        "timestamp": "2026-08-02T19:00:00.000Z"
+      },
+      {
+        "index": 329,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 63454,
+        "adx": 41.2848701645918,
+        "timestamp": "2026-08-02T19:45:00.000Z"
+      },
+      {
+        "index": 362,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 63427.9,
+        "adx": 46.312623185940744,
+        "timestamp": "2026-08-02T22:30:00.000Z"
+      },
+      {
+        "index": 490,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 62542.8,
+        "adx": 30.649132730551806,
+        "timestamp": "2026-08-03T09:10:00.000Z"
+      },
+      {
+        "index": 513,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 62577.2,
+        "adx": 26.087079341754155,
+        "timestamp": "2026-08-03T11:05:00.000Z"
+      },
+      {
+        "index": 558,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 63847.9,
+        "adx": 35.81555107718164,
+        "timestamp": "2026-08-03T14:50:00.000Z"
+      },
+      {
+        "index": 729,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 63890.7,
+        "adx": 31.10275018860418,
+        "timestamp": "2026-08-04T05:05:00.000Z"
+      },
+      {
+        "index": 758,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 63661.1,
+        "adx": 27.457250837216446,
+        "timestamp": "2026-08-04T07:30:00.000Z"
+      },
+      {
+        "index": 835,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 63663.7,
+        "adx": 31.598950223393253,
+        "timestamp": "2026-08-04T13:55:00.000Z"
+      },
+      {
+        "index": 986,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 64459,
+        "adx": 29.89605383041384,
+        "timestamp": "2026-08-05T02:30:00.000Z"
+      },
+      {
+        "index": 995,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 64095.6,
+        "adx": 31.722916547219263,
+        "timestamp": "2026-08-05T03:15:00.000Z"
+      }
+    ]
+  },
+  "15m": {
+    "totalCandles": 1000,
+    "signalCount": 12,
+    "bullishSignals": 6,
+    "bearishSignals": 6,
+    "avgAdaptiveMultiplier": 3.004494719781333,
+    "avgATR": 134.0242473921847,
+    "adxFilterEnabled": true,
+    "adxThreshold": 25,
+    "avgADX": 26.527923196639787,
+    "avgADXAtSignals": 36.17867877483989,
+    "statistics": {
+      "BULLISH": {
+        "1": {
+          "count": 6,
+          "avgMove": -0.0908905699986094,
+          "winRate": 0,
+          "avgWin": 0,
+          "avgLoss": -0.0908905699986094,
+          "profitFactor": 0,
+          "maxWin": 0,
+          "maxLoss": -0.16286795380583868,
+          "totalPnL": -0.5453434199916564
+        },
+        "3": {
+          "count": 6,
+          "avgMove": -0.08759281435618105,
+          "winRate": 33.33333333333333,
+          "avgWin": 0.05556001101172136,
+          "avgLoss": -0.15916922704013226,
+          "profitFactor": 0.1745312584753355,
+          "maxWin": 0.09782350663813978,
+          "maxLoss": -0.27893471036693746,
+          "totalPnL": -0.5255568861370863
+        },
+        "5": {
+          "count": 6,
+          "avgMove": -0.09440800046829732,
+          "winRate": 50,
+          "avgWin": 0.08546020826884539,
+          "avgLoss": -0.27427620920544005,
+          "profitFactor": 0.31158447360935143,
+          "maxWin": 0.09794288350167925,
+          "maxLoss": -0.30092666305766963,
+          "totalPnL": -0.5664480028097839
+        },
+        "10": {
+          "count": 6,
+          "avgMove": -0.14042604688604984,
+          "winRate": 50,
+          "avgWin": 0.14787107167818614,
+          "avgLoss": -0.4287231654502858,
+          "profitFactor": 0.3449103841236988,
+          "maxWin": 0.21973959830780895,
+          "maxLoss": -0.669199294199097,
+          "totalPnL": -0.842556281316299
+        }
+      },
+      "BEARISH": {
+        "1": {
+          "count": 6,
+          "avgMove": -0.021516724450091434,
+          "winRate": 66.66666666666666,
+          "avgWin": 0.07838911167956988,
+          "avgLoss": -0.22132839670941407,
+          "profitFactor": 0.7083511455828989,
+          "maxWin": 0.11358160133012213,
+          "maxLoss": -0.2773957950144608,
+          "totalPnL": -0.1291003467005486
+        },
+        "3": {
+          "count": 6,
+          "avgMove": -0.005193817032365239,
+          "winRate": 33.33333333333333,
+          "avgWin": 0.2888264864229371,
+          "avgLoss": -0.1522039687600164,
+          "profitFactor": 0.948813913250635,
+          "maxWin": 0.518012678371918,
+          "maxLoss": -0.33296968223419887,
+          "totalPnL": -0.031162902194191433
+        },
+        "5": {
+          "count": 6,
+          "avgMove": 0.04892790222070909,
+          "winRate": 33.33333333333333,
+          "avgWin": 0.312295708944502,
+          "avgLoss": -0.08275600114118735,
+          "profitFactor": 1.8868462989874555,
+          "maxWin": 0.4673425779149618,
+          "maxLoss": -0.1980694381009984,
+          "totalPnL": 0.29356741332425457
+        },
+        "10": {
+          "count": 6,
+          "avgMove": -0.0003285024870558391,
+          "winRate": 66.66666666666666,
+          "avgWin": 0.17232221152586696,
+          "avgLoss": -0.3456299305129014,
+          "profitFactor": 0.9971486628495829,
+          "maxWin": 0.3435339838320497,
+          "maxLoss": -0.4588813690165906,
+          "totalPnL": -0.001971014922335035
+        }
+      }
+    },
+    "signals": [
+      {
+        "index": 48,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 64386,
+        "adx": 28.252476685114882,
+        "timestamp": "2026-07-26T05:45:00.000Z"
+      },
+      {
+        "index": 81,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 64678.6,
+        "adx": 28.01994127524829,
+        "timestamp": "2026-07-26T14:00:00.000Z"
+      },
+      {
+        "index": 125,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 65027.7,
+        "adx": 37.50007782621854,
+        "timestamp": "2026-07-27T01:00:00.000Z"
+      },
+      {
+        "index": 145,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 65570.9,
+        "adx": 30.18817795043213,
+        "timestamp": "2026-07-27T06:00:00.000Z"
+      },
+      {
+        "index": 221,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 63172.8,
+        "adx": 41.81097292689009,
+        "timestamp": "2026-07-28T01:00:00.000Z"
+      },
+      {
+        "index": 457,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 64960.6,
+        "adx": 40.3152063156656,
+        "timestamp": "2026-07-30T12:00:00.000Z"
+      },
+      {
+        "index": 512,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 64535.1,
+        "adx": 27.50753532053701,
+        "timestamp": "2026-07-31T01:45:00.000Z"
+      },
+      {
+        "index": 686,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 62766.1,
+        "adx": 39.41087489047072,
+        "timestamp": "2026-08-01T21:15:00.000Z"
+      },
+      {
+        "index": 731,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 63202.9,
+        "adx": 40.11955102396386,
+        "timestamp": "2026-08-02T08:30:00.000Z"
+      },
+      {
+        "index": 767,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 63302.2,
+        "adx": 30.076180465417885,
+        "timestamp": "2026-08-02T17:30:00.000Z"
+      },
+      {
+        "index": 789,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 63339.1,
+        "adx": 44.50602872803912,
+        "timestamp": "2026-08-02T23:00:00.000Z"
+      },
+      {
+        "index": 832,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 62806,
+        "adx": 46.43712189008049,
+        "timestamp": "2026-08-03T09:45:00.000Z"
+      }
+    ]
+  },
+  "1h": {
+    "totalCandles": 1000,
+    "signalCount": 4,
+    "bullishSignals": 2,
+    "bearishSignals": 2,
+    "avgAdaptiveMultiplier": 2.9808082196930825,
+    "avgATR": 345.2132077174161,
+    "adxFilterEnabled": true,
+    "adxThreshold": 25,
+    "avgADX": 24.455971943800783,
+    "avgADXAtSignals": 28.13375117553811,
+    "statistics": {
+      "BULLISH": {
+        "1": {
+          "count": 2,
+          "avgMove": -0.29561817520902955,
+          "winRate": 0,
+          "avgWin": 0,
+          "avgLoss": -0.29561817520902955,
+          "profitFactor": 0,
+          "maxWin": -0.23244496340740994,
+          "maxLoss": -0.3587913870106491,
+          "totalPnL": -0.5912363504180591
+        },
+        "3": {
+          "count": 2,
+          "avgMove": -0.16807093625831107,
+          "winRate": 50,
+          "avgWin": 0.0382577742292306,
+          "avgLoss": -0.37439964674585274,
+          "profitFactor": 0.10218432245263433,
+          "maxWin": 0.0382577742292306,
+          "maxLoss": -0.37439964674585274,
+          "totalPnL": -0.33614187251662214
+        },
+        "5": {
+          "count": 2,
+          "avgMove": -0.022910850586593163,
+          "winRate": 0,
+          "avgWin": 0,
+          "avgLoss": -0.022910850586593163,
+          "profitFactor": 0,
+          "maxWin": -0.01554815808745217,
+          "maxLoss": -0.030273543085734156,
+          "totalPnL": -0.045821701173186326
+        },
+        "10": {
+          "count": 1,
+          "avgMove": 0.052396516879163656,
+          "winRate": 100,
+          "avgWin": 0.052396516879163656,
+          "avgLoss": 0,
+          "profitFactor": null,
+          "maxWin": 0.052396516879163656,
+          "maxLoss": 0.052396516879163656,
+          "totalPnL": 0.052396516879163656
+        }
+      },
+      "BEARISH": {
+        "1": {
+          "count": 2,
+          "avgMove": -0.17561333472717805,
+          "winRate": 50,
+          "avgWin": 0.22624854245214898,
+          "avgLoss": -0.5774752119065051,
+          "profitFactor": 0.3917891846910639,
+          "maxWin": 0.22624854245214898,
+          "maxLoss": -0.5774752119065051,
+          "totalPnL": -0.3512266694543561
+        },
+        "3": {
+          "count": 2,
+          "avgMove": -0.2399319084248437,
+          "winRate": 50,
+          "avgWin": 0.03186306419894513,
+          "avgLoss": -0.5117268810486325,
+          "profitFactor": 0.06226576202846961,
+          "maxWin": 0.03186306419894513,
+          "maxLoss": -0.5117268810486325,
+          "totalPnL": -0.4798638168496874
+        },
+        "5": {
+          "count": 2,
+          "avgMove": -0.2474809884954361,
+          "winRate": 0,
+          "avgWin": 0,
+          "avgLoss": -0.2474809884954361,
+          "profitFactor": 0,
+          "maxWin": -0.03751618849228465,
+          "maxLoss": -0.4574457884985875,
+          "totalPnL": -0.4949619769908722
+        },
+        "10": {
+          "count": 2,
+          "avgMove": 0.7636829130270162,
+          "winRate": 50,
+          "avgWin": 1.8716924875586542,
+          "avgLoss": -0.3443266615046218,
+          "profitFactor": 5.435804707598952,
+          "maxWin": 1.8716924875586542,
+          "maxLoss": -0.3443266615046218,
+          "totalPnL": 1.5273658260540324
+        }
+      }
+    },
+    "signals": [
+      {
+        "index": 144,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 58374.8,
+        "adx": 27.59248565281364,
+        "timestamp": "2026-06-30T12:00:00.000Z"
+      },
+      {
+        "index": 171,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 60118.5,
+        "adx": 29.373288420240957,
+        "timestamp": "2026-07-01T15:00:00.000Z"
+      },
+      {
+        "index": 794,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 64663.4,
+        "adx": 30.556424011494506,
+        "timestamp": "2026-07-27T14:00:00.000Z"
+      },
+      {
+        "index": 992,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 64316.3,
+        "adx": 25.01280661760334,
+        "timestamp": "2026-08-04T20:00:00.000Z"
+      }
+    ]
+  },
+  "4h": {
+    "totalCandles": 1000,
+    "signalCount": 10,
+    "bullishSignals": 5,
+    "bearishSignals": 5,
+    "avgAdaptiveMultiplier": 3.000687543356873,
+    "avgATR": 910.7567991465733,
+    "adxFilterEnabled": true,
+    "adxThreshold": 25,
+    "avgADX": 27.722474737710197,
+    "avgADXAtSignals": 33.94790298093016,
+    "statistics": {
+      "BULLISH": {
+        "1": {
+          "count": 5,
+          "avgMove": -0.3685035568777292,
+          "winRate": 20,
+          "avgWin": 1.5187206061780634,
+          "avgLoss": -0.8403095976416773,
+          "profitFactor": 0.45183364870529313,
+          "maxWin": 1.5187206061780634,
+          "maxLoss": -1.486247581222584,
+          "totalPnL": -1.842517784388646
+        },
+        "3": {
+          "count": 5,
+          "avgMove": 0.4416086191844454,
+          "winRate": 60,
+          "avgWin": 0.9834659191085219,
+          "avgLoss": -0.37117733070166936,
+          "profitFactor": 3.974377626656466,
+          "maxWin": 1.693957599198601,
+          "maxLoss": -0.40699216067555927,
+          "totalPnL": 2.208043095922227
+        },
+        "5": {
+          "count": 5,
+          "avgMove": 0.6593194087347278,
+          "winRate": 80,
+          "avgWin": 1.3615374828982294,
+          "avgLoss": -2.1495528879192793,
+          "profitFactor": 2.5336198807672385,
+          "maxWin": 2.723952604125451,
+          "maxLoss": -2.1495528879192793,
+          "totalPnL": 3.296597043673639
+        },
+        "10": {
+          "count": 5,
+          "avgMove": 0.6752631015505189,
+          "winRate": 60,
+          "avgWin": 1.4448705800445143,
+          "avgLoss": -0.47914811619047376,
+          "profitFactor": 4.523248233340046,
+          "maxWin": 1.8768565806311022,
+          "maxLoss": -0.854579211924,
+          "totalPnL": 3.3763155077525946
+        }
+      },
+      "BEARISH": {
+        "1": {
+          "count": 5,
+          "avgMove": 0.129717859884888,
+          "winRate": 20,
+          "avgWin": 1.8679747366561523,
+          "avgLoss": -0.3048463593079281,
+          "profitFactor": 1.5318985118412503,
+          "maxWin": 1.8679747366561523,
+          "maxLoss": -0.6610510056483863,
+          "totalPnL": 0.64858929942444
+        },
+        "3": {
+          "count": 5,
+          "avgMove": -0.3692594917911928,
+          "winRate": 40,
+          "avgWin": 1.3555222183076405,
+          "avgLoss": -1.5191139651904149,
+          "profitFactor": 0.5948740513082489,
+          "maxWin": 1.4648157145065517,
+          "maxLoss": -3.965768070683705,
+          "totalPnL": -1.846297458955964
+        },
+        "5": {
+          "count": 5,
+          "avgMove": -0.11596792792885643,
+          "winRate": 40,
+          "avgWin": 2.804719899968292,
+          "avgLoss": -2.063093146526955,
+          "profitFactor": 0.9063154854608491,
+          "maxWin": 3.2757878232449382,
+          "maxLoss": -5.778950404775783,
+          "totalPnL": -0.5798396396442822
+        },
+        "10": {
+          "count": 5,
+          "avgMove": 0.12608157042487206,
+          "winRate": 40,
+          "avgWin": 4.994026278366925,
+          "avgLoss": -3.1192149015364965,
+          "profitFactor": 1.067368218395151,
+          "maxWin": 9.156857982024171,
+          "maxLoss": -5.161439648188863,
+          "totalPnL": 0.6304078521243603
+        }
+      }
+    },
+    "signals": [
+      {
+        "index": 52,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 63788.4,
+        "adx": 25.292924987192347,
+        "timestamp": "2026-02-28T04:00:00.000Z"
+      },
+      {
+        "index": 147,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 73539.5,
+        "adx": 32.53410577428536,
+        "timestamp": "2026-03-16T00:00:00.000Z"
+      },
+      {
+        "index": 163,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 71030.3,
+        "adx": 37.63806634971106,
+        "timestamp": "2026-03-18T16:00:00.000Z"
+      },
+      {
+        "index": 194,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 70865.9,
+        "adx": 28.080775938744065,
+        "timestamp": "2026-03-23T20:00:00.000Z"
+      },
+      {
+        "index": 312,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 70856.2,
+        "adx": 44.25118568182559,
+        "timestamp": "2026-04-12T12:00:00.000Z"
+      },
+      {
+        "index": 319,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 73272.2,
+        "adx": 31.987002140600246,
+        "timestamp": "2026-04-13T16:00:00.000Z"
+      },
+      {
+        "index": 528,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 76393.5,
+        "adx": 40.53970358249861,
+        "timestamp": "2026-05-18T12:00:00.000Z"
+      },
+      {
+        "index": 563,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 77289.5,
+        "adx": 27.985542419307098,
+        "timestamp": "2026-05-24T08:00:00.000Z"
+      },
+      {
+        "index": 611,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 72452.8,
+        "adx": 32.03497465517929,
+        "timestamp": "2026-06-01T08:00:00.000Z"
+      },
+      {
+        "index": 795,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 61032.9,
+        "adx": 39.134748279957975,
+        "timestamp": "2026-07-02T00:00:00.000Z"
+      }
+    ]
+  },
+  "1d": {
+    "totalCandles": 1000,
+    "signalCount": 9,
+    "bullishSignals": 4,
+    "bearishSignals": 5,
+    "avgAdaptiveMultiplier": 3.0090362944642637,
+    "avgATR": 2899.6948350108437,
+    "adxFilterEnabled": true,
+    "adxThreshold": 25,
+    "avgADX": 26.553011868463347,
+    "avgADXAtSignals": 32.307199201018165,
+    "statistics": {
+      "BULLISH": {
+        "1": {
+          "count": 4,
+          "avgMove": -0.15510896857269862,
+          "winRate": 50,
+          "avgWin": 1.0581466227116416,
+          "avgLoss": -1.368364559857039,
+          "profitFactor": 0.7732929175118305,
+          "maxWin": 1.6070215318028138,
+          "maxLoss": -2.4594790298645006,
+          "totalPnL": -0.6204358742907945
+        },
+        "3": {
+          "count": 4,
+          "avgMove": -1.901976348480796,
+          "winRate": 50,
+          "avgWin": 0.47645955603844503,
+          "avgLoss": -4.280412253000037,
+          "profitFactor": 0.11131160455502997,
+          "maxWin": 0.8181880708837916,
+          "maxLoss": -7.446580049393306,
+          "totalPnL": -7.607905393923184
+        },
+        "5": {
+          "count": 4,
+          "avgMove": -0.7831535161133357,
+          "winRate": 50,
+          "avgWin": 2.280464421874163,
+          "avgLoss": -3.8467714541008347,
+          "profitFactor": 0.5928255549060716,
+          "maxWin": 3.733731598037135,
+          "maxLoss": -5.846941275911517,
+          "totalPnL": -3.132614064453343
+        },
+        "10": {
+          "count": 4,
+          "avgMove": -0.837267107424078,
+          "winRate": 50,
+          "avgWin": 2.3844933200188274,
+          "avgLoss": -4.059027534866983,
+          "profitFactor": 0.5874543346986605,
+          "maxWin": 3.080072189646036,
+          "maxLoss": -6.098545533849471,
+          "totalPnL": -3.349068429696312
+        }
+      },
+      "BEARISH": {
+        "1": {
+          "count": 5,
+          "avgMove": 1.4382620856660417,
+          "winRate": 60,
+          "avgWin": 3.0658065882073804,
+          "avgLoss": -1.0030546681459664,
+          "profitFactor": 4.584705129593054,
+          "maxWin": 6.529488804689635,
+          "maxLoss": -1.154873934558639,
+          "totalPnL": 7.191310428330209
+        },
+        "3": {
+          "count": 5,
+          "avgMove": 0.9407741829301776,
+          "winRate": 40,
+          "avgWin": 6.344341937037918,
+          "avgLoss": -2.661604319808316,
+          "profitFactor": 1.5891022042161465,
+          "maxWin": 10.558820027594319,
+          "maxLoss": -4.5366879655193575,
+          "totalPnL": 4.703870914650888
+        },
+        "5": {
+          "count": 5,
+          "avgMove": 2.1996156018349198,
+          "winRate": 60,
+          "avgWin": 6.1825878585655785,
+          "avgLoss": -3.7748427832610676,
+          "profitFactor": 2.456759743471146,
+          "maxWin": 14.766183649314,
+          "maxLoss": -5.8365037252329355,
+          "totalPnL": 10.998078009174598
+        },
+        "10": {
+          "count": 5,
+          "avgMove": 2.2777002905964667,
+          "winRate": 80,
+          "avgWin": 4.477435341701527,
+          "avgLoss": -6.521239913823777,
+          "profitFactor": 2.7463705680940973,
+          "maxWin": 10.916705770294781,
+          "maxLoss": -6.521239913823777,
+          "totalPnL": 11.388501452982334
+        }
+      }
+    },
+    "signals": [
+      {
+        "index": 237,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 57045.9,
+        "adx": 35.62585319249227,
+        "timestamp": "2024-07-04T00:00:00.000Z"
+      },
+      {
+        "index": 248,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 64680.6,
+        "adx": 37.44001760912271,
+        "timestamp": "2024-07-15T00:00:00.000Z"
+      },
+      {
+        "index": 416,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 92759.3,
+        "adx": 25.433041236581875,
+        "timestamp": "2024-12-30T00:00:00.000Z"
+      },
+      {
+        "index": 545,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 103228.1,
+        "adx": 30.87255698705454,
+        "timestamp": "2025-05-08T00:00:00.000Z"
+      },
+      {
+        "index": 700,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 112714.9,
+        "adx": 31.015372086879847,
+        "timestamp": "2025-10-10T00:00:00.000Z"
+      },
+      {
+        "index": 795,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 95375.2,
+        "adx": 27.593118769593755,
+        "timestamp": "2026-01-13T00:00:00.000Z"
+      },
+      {
+        "index": 802,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 88390.6,
+        "adx": 30.954393991390692,
+        "timestamp": "2026-01-20T00:00:00.000Z"
+      },
+      {
+        "index": 845,
+        "type": "BULLISH",
+        "previousTrend": -1,
+        "newTrend": 1,
+        "price": 72641.4,
+        "adx": 43.65648715363729,
+        "timestamp": "2026-03-04T00:00:00.000Z"
+      },
+      {
+        "index": 934,
+        "type": "BEARISH",
+        "previousTrend": 1,
+        "newTrend": -1,
+        "price": 71391.5,
+        "adx": 28.1739517824105,
+        "timestamp": "2026-06-01T00:00:00.000Z"
+      }
+    ]
+  }
+}
